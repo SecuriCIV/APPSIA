@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIA — Menu circulaire</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --primary: #ff3b9d;
+  --secondary: #a855f7;
+  --background: #fff7fc;
+  --text: #29152f;
+  --card: #ffffff;
+  --muted: #99899d;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  margin: auto;
+  padding: 25px 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 30px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.avatar {
+  font-size: 24px;
+}
+
+h1 {
+  margin-top: 35px;
+  font-size: 27px;
+}
+
+h1 span {
+  color: var(--primary);
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.search {
+  margin-top: 25px;
+  padding: 17px;
+  background: var(--card);
+  border-radius: 16px;
+  color: var(--muted);
+  box-shadow: 0 5px 20px #00000008;
+}
+
+.menu {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  margin-top: 25px;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.orbit {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  left: 50%;
+  top: 35px;
+  transform: translateX(-50%);
+  border: 1px dashed #e8c9df;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.satellite {
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  border: none;
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 8px 25px #6e235015;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+
+  font-size: 11px;
+  cursor: pointer;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    opacity .25s ease,
+    transform .35s cubic-bezier(.2,.8,.2,1);
+
+  z-index: 2;
+}
+
+.s1 {
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, 45px) scale(.4);
+}
+
+.s2 {
+  right: 0;
+  top: 85px;
+  transform: translate(-35px, 20px) scale(.4);
+}
+
+.s3 {
+  right: 0;
+  bottom: 20px;
+  transform: translate(-35px, -20px) scale(.4);
+}
+
+.s4 {
+  left: 0;
+  bottom: 20px;
+  transform: translate(35px, -20px) scale(.4);
+}
+
+.s5 {
+  left: 0;
+  top: 85px;
+  transform: translate(35px, 20px) scale(.4);
+}
+
+.menu.open .satellite {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.menu.open .s1 {
+  transform: translate(-50%, 0) scale(1);
+}
+
+.menu.open .s2,
+.menu.open .s3,
+.menu.open .s4,
+.menu.open .s5 {
+  transform: translate(0, 0) scale(1);
+}
+
+.satellite .icon {
+  font-size: 25px;
+}
+
+.center {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  border: 5px solid white;
+  border-radius: 50%;
+
+  background: linear-gradient(
+    145deg,
+    #ff4da6,
+    #a855f7
+  );
+
+  color: white;
+
+  box-shadow: 0 15px 40px #e63c9e50;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+
+  z-index: 5;
+}
+
+.center:active {
+  cursor: grabbing;
+}
+
+.center .icon {
+  font-size: 35px;
+}
+
+.center strong {
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+.center small {
+  margin-top: 4px;
+  font-size: 10px;
+  opacity: .85;
+}
+
+.hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.destination {
+  display: none;
+  margin-top: 25px;
+  padding: 25px;
+  background: var(--card);
+  border-radius: 20px;
+  box-shadow: 0 5px 20px #00000008;
+}
+
+.destination.active {
+  display: block;
+}
+
+.destination button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #15101b;
+    --text: #f8eefa;
+    --card: #241b2d;
+    --muted: #b5a4bc;
+  }
+
+  .orbit {
+    border-color: #51304e;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header>
+    <div class="logo">SIA.</div>
+    <div class="avatar">👤</div>
+  </header>
+
+  <h1>Salut, <span>Glenn</span> 👋</h1>
+
+  <p class="subtitle">
+    Bienvenue dans ton univers étudiant.
+  </p>
+
+  <div class="search">
+    🔎 Rechercher un document...
+  </div>
+
+  <div class="menu" id="menu">
+
+    <div class="orbit"></div>
+
+    <button class="satellite s1" data-page="Recherche">
+      <span class="icon">🔍</span>
+      Recherche
+    </button>
+
+    <button class="satellite s2" data-page="Documents">
+      <span class="icon">📚</span>
+      Documents
+    </button>
+
+    <button class="satellite s3" data-page="Téléchargements">
+      <span class="icon">⬇️</span>
+      Fichiers
+    </button>
+
+    <button class="satellite s4" data-page="Publier">
+      <span class="icon">➕</span>
+      Publier
+    </button>
+
+    <button class="satellite s5" data-page="Profil">
+      <span class="icon">👤</span>
+      Profil
+    </button>
+
+    <button class="center" id="center">
+      <span class="icon">✦</span>
+      <strong>SIA</strong>
+      <small>Toucher pour explorer</small>
+    </button>
+
+  </div>
+
+  <p class="hint" id="hint">
+    Touche le bouton central pour afficher les satellites.
+  </p>
+
+  <section class="destination" id="destination">
+
+    <h2 id="pageTitle"></h2>
+
+    <p id="pageDescription"></p>
+
+    <button onclick="closePage()">
+      Retour
+    </button>
+
+  </section>
+
+</div>
+
+<script>
+const menu = document.getElementById("menu");
+const center = document.getElementById("center");
+const hint = document.getElementById("hint");
+
+const destination = document.getElementById("destination");
+const pageTitle = document.getElementById("pageTitle");
+const pageDescription = document.getElementById("pageDescription");
+
+const satellites = document.querySelectorAll(".satellite");
+
+let isOpen = false;
+let isDragging = false;
+let moved = false;
+
+let startX = 0;
+let startY = 0;
+
+let initialX = 0;
+let initialY = 0;
+
+const pages = {
+  Recherche: "Recherche des documents par matière ou niveau.",
+  Documents: "Consulte les documents disponibles sur SIA.",
+  Téléchargements: "Retrouve les documents que tu as achetés.",
+  Publier: "Publie tes documents pour les proposer à la vente.",
+  Profil: "Gère ton compte et tes publications."
+};
+
+function openMenu() {
+  isOpen = true;
+  menu.classList.add("open");
+
+  hint.textContent =
+    "Fais glisser le bouton central vers un satellite.";
+}
+
+function closeMenu() {
+  isOpen = false;
+  menu.classList.remove("open");
+
+  hint.textContent =
+    "Touche le bouton central pour afficher les satellites.";
+}
+
+function toggleMenu() {
+  if (isOpen) {
+    closeMenu();
+  } else {
+    openMenu();
+  }
+}
+
+center.addEventListener("pointerdown", function(e) {
+
+  if (destination.classList.contains("active")) {
+    return;
+  }
+
+  e.preventDefault();
+
+  isDragging = true;
+  moved = false;
+
+  startX = e.clientX;
+  startY = e.clientY;
+
+  const menuRect = menu.getBoundingClientRect();
+  const centerRect = center.getBoundingClientRect();
+
+  initialX = centerRect.left - menuRect.left;
+  initialY = centerRect.top - menuRect.top;
+
+  center.setPointerCapture(e.pointerId);
+
+  if (!isOpen) {
+    openMenu();
+  }
+});
+
+center.addEventListener("pointermove", function(e) {
+
+  if (!isDragging) return;
+
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+
+  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+    moved = true;
+  }
+
+  if (!moved) return;
+
+  const menuRect = menu.getBoundingClientRect();
+
+  const size = center.offsetWidth;
+  const height = center.offsetHeight;
+
+  let x = initialX + dx;
+  let y = initialY + dy;
+
+  x = Math.max(
+    0,
+    Math.min(menuRect.width - size, x)
+  );
+
+  y = Math.max(
+    0,
+    Math.min(menuRect.height - height, y)
+  );
+
+  center.style.left = x + "px";
+  center.style.top = y + "px";
+
+  center.style.transform = "none";
+});
+
+center.addEventListener("pointerup", function() {
+
+  if (!isDragging) return;
+
+  isDragging = false;
+
+  if (moved) {
+    selectSatellite();
+  }
+});
+
+center.addEventListener("pointercancel", function() {
+  isDragging = false;
+});
+
+function selectSatellite() {
+
+  const centerRect = center.getBoundingClientRect();
+
+  let selected = null;
+  let closestDistance = Infinity;
+
+  satellites.forEach(function(satellite) {
+
+    const satelliteRect = satellite.getBoundingClientRect();
+
+    const overlapX =
+      Math.min(centerRect.right, satelliteRect.right) -
+      Math.max(centerRect.left, satelliteRect.left);
+
+    const overlapY =
+      Math.min(centerRect.bottom, satelliteRect.bottom) -
+      Math.max(centerRect.top, satelliteRect.top);
+
+    if (overlapX > 0 && overlapY > 0) {
+
+      const centerX =
+        satelliteRect.left + satelliteRect.width / 2;
+
+      const centerY =
+        satelliteRect.top + satelliteRect.height / 2;
+
+      const distance = Math.hypot(
+        centerRect.left + centerRect.width / 2 - centerX,
+        centerRect.top + centerRect.height / 2 - centerY
+      );
+
+      if (distance < closestDistance) {
+        selected = satellite;
+        closestDistance = distance;
+      }
+    }
+  });
+
+  if (selected) {
+    openPage(selected.dataset.page);
+  }
+}
+
+center.addEventListener("click", function() {
+
+  if (moved) return;
+
+  if (!isOpen) {
+    openMenu();
+  }
+
+});
+
+satellites.forEach(function(satellite) {
+
+  satellite.addEventListener("click", function(e) {
+
+    e.stopPropagation();
+
+    openPage(this.dataset.page);
+
+  });
+
+});
+
+function openPage(page) {
+
+  pageTitle.textContent = page;
+
+  pageDescription.textContent = pages[page];
+
+  destination.classList.add("active");
+
+  menu.style.display = "none";
+  hint.style.display = "none";
+}
+
+function closePage() {
+
+  destination.classList.remove("active");
+
+  menu.style.display = "";
+  hint.style.display = "";
+
+  openMenu();
+}
+
+</script>
+
+</body>
+</html>
+
