@@ -17,6 +17,7 @@
   --text: #29152f;
   --card: #ffffff;
   --muted: #99899d;
+  --border: #f0e2ed;
 }
 
 body {
@@ -24,7 +25,8 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app {
@@ -45,15 +47,23 @@ header {
   font-size: 30px;
   font-weight: 900;
   color: var(--primary);
+  letter-spacing: -0.5px;
 }
 
 .avatar {
   font-size: 24px;
+  cursor: pointer;
+  transition: transform .2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.1);
 }
 
 h1 {
   margin-top: 35px;
   font-size: 27px;
+  font-weight: 800;
 }
 
 h1 span {
@@ -63,24 +73,111 @@ h1 span {
 .subtitle {
   color: var(--muted);
   font-size: 14px;
+  margin-top: 6px;
 }
 
-.search {
+/* Recherche interactive */
+.search-container {
+  position: relative;
   margin-top: 25px;
-  padding: 17px;
-  background: var(--card);
-  border-radius: 16px;
-  color: var(--muted);
-  box-shadow: 0 5px 20px #00000008;
 }
 
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 5px 20px #00000008;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+
+.search-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 5px 25px #ff3b9d15;
+}
+
+.search-icon {
+  font-size: 18px;
+  opacity: .7;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
+}
+
+.search-clear {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+  display: none;
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px #00000012;
+  overflow: hidden;
+  z-index: 20;
+  display: none;
+}
+
+.search-result-item {
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  transition: background .15s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: #ff3b9d0c;
+  color: var(--primary);
+}
+
+.search-result-item span.tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  background: #ff3b9d15;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Menu orbital */
 .menu {
   position: relative;
   width: 100%;
   height: 360px;
   margin-top: 25px;
-  overflow: hidden;
-  touch-action: pan-y;
+  overflow: visible;
+  touch-action: none;
 }
 
 .orbit {
@@ -88,18 +185,19 @@ h1 span {
   width: 280px;
   height: 280px;
   left: 50%;
-  top: 35px;
+  top: 40px;
   transform: translateX(-50%);
-  border: 1px dashed #e8c9df;
+  border: 2px dashed #e8c9df;
   border-radius: 50%;
   pointer-events: none;
+  transition: opacity .3s ease;
 }
 
 .satellite {
   position: absolute;
   width: 76px;
   height: 76px;
-  border: none;
+  border: 2px solid transparent;
   border-radius: 50%;
   background: var(--card);
   color: var(--text);
@@ -109,9 +207,10 @@ h1 span {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 
   font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
 
   opacity: 0;
@@ -120,38 +219,40 @@ h1 span {
 
   transition:
     opacity .25s ease,
-    transform .35s cubic-bezier(.2,.8,.2,1);
+    transform .35s cubic-bezier(.2,.8,.2,1),
+    border-color .2s ease,
+    box-shadow .2s ease;
 
   z-index: 2;
 }
 
 .s1 {
   left: 50%;
-  top: 0;
+  top: 5px;
   transform: translate(-50%, 45px) scale(.4);
 }
 
 .s2 {
-  right: 0;
-  top: 85px;
+  right: 15px;
+  top: 90px;
   transform: translate(-35px, 20px) scale(.4);
 }
 
 .s3 {
-  right: 0;
-  bottom: 20px;
+  right: 35px;
+  bottom: 25px;
   transform: translate(-35px, -20px) scale(.4);
 }
 
 .s4 {
-  left: 0;
-  bottom: 20px;
+  left: 35px;
+  bottom: 25px;
   transform: translate(35px, -20px) scale(.4);
 }
 
 .s5 {
-  left: 0;
-  top: 85px;
+  left: 15px;
+  top: 90px;
   transform: translate(35px, 20px) scale(.4);
 }
 
@@ -172,10 +273,28 @@ h1 span {
   transform: translate(0, 0) scale(1);
 }
 
-.satellite .icon {
-  font-size: 25px;
+/* Feedback d'aimant & highlight au survol */
+.satellite.highlight {
+  transform: translate(0, 0) scale(1.22) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 4px #ff3b9d30, 0 12px 30px #ff3b9d30 !important;
+  color: var(--primary);
 }
 
+.menu.open .s1.highlight {
+  transform: translate(-50%, 0) scale(1.22) !important;
+}
+
+.satellite .icon {
+  font-size: 24px;
+  transition: transform .2s ease;
+}
+
+.satellite.highlight .icon {
+  transform: scale(1.15);
+}
+
+/* Bouton central SIA */
 .center {
   position: absolute;
   width: 130px;
@@ -183,18 +302,12 @@ h1 span {
 
   left: 50%;
   top: 50%;
-
   transform: translate(-50%, -50%);
 
   border: 5px solid white;
   border-radius: 50%;
 
-  background: linear-gradient(
-    145deg,
-    #ff4da6,
-    #a855f7
-  );
-
+  background: linear-gradient(145deg, #ff4da6, #a855f7);
   color: white;
 
   box-shadow: 0 15px 40px #e63c9e50;
@@ -215,59 +328,102 @@ h1 span {
   cursor: grabbing;
 }
 
+.center.returning {
+  transition:
+    left .35s cubic-bezier(.2,.8,.2,1),
+    top .35s cubic-bezier(.2,.8,.2,1),
+    transform .35s cubic-bezier(.2,.8,.2,1);
+}
+
 .center .icon {
-  font-size: 35px;
+  font-size: 34px;
 }
 
 .center strong {
-  margin-top: 5px;
+  margin-top: 4px;
   font-size: 16px;
+  letter-spacing: 0.5px;
 }
 
 .center small {
-  margin-top: 4px;
+  margin-top: 3px;
   font-size: 10px;
-  opacity: .85;
+  opacity: .9;
 }
 
 .hint {
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
+  margin-top: 10px;
+  transition: color .2s ease;
 }
 
+/* Page de destination */
 .destination {
   display: none;
   margin-top: 25px;
   padding: 25px;
   background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: 0 5px 20px #00000008;
+  animation: fadeIn .3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .destination.active {
   display: block;
 }
 
-.destination button {
-  padding: 12px 20px;
+.destination h2 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  color: var(--primary);
+}
+
+.destination p {
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.destination button.back-btn {
+  padding: 12px 24px;
   border: none;
   border-radius: 12px;
   background: var(--primary);
   color: white;
+  font-weight: 600;
   cursor: pointer;
+  transition: background .2s ease, transform .15s ease;
 }
 
+.destination button.back-btn:hover {
+  background: #e62e8b;
+  transform: translateY(-1px);
+}
+
+/* Mode sombre */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #15101b;
     --text: #f8eefa;
     --card: #241b2d;
     --muted: #b5a4bc;
+    --border: #3b2a47;
   }
 
   .orbit {
     border-color: #51304e;
+  }
+
+  .search-result-item:hover {
+    background: #ff3b9d15;
   }
 }
 </style>
@@ -279,7 +435,7 @@ h1 span {
 
   <header>
     <div class="logo">SIA.</div>
-    <div class="avatar">👤</div>
+    <div class="avatar" title="Mon compte" onclick="openPage('Profil')">👤</div>
   </header>
 
   <h1>Salut, <span>Glenn</span> 👋</h1>
@@ -288,61 +444,63 @@ h1 span {
     Bienvenue dans ton univers étudiant.
   </p>
 
-  <div class="search">
-    🔎 Rechercher un document...
+  <!-- Barre de recherche interactive -->
+  <div class="search-container">
+    <div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un document, cours, matière..." autocomplete="off">
+      <button type="button" class="search-clear" id="searchClear" aria-label="Effacer">✕</button>
+    </div>
+    <div class="search-results" id="searchResults"></div>
   </div>
 
   <div class="menu" id="menu">
 
     <div class="orbit"></div>
 
-    <button class="satellite s1" data-page="Recherche">
+    <button class="satellite s1" data-page="Recherche" aria-label="Recherche">
       <span class="icon">🔍</span>
       Recherche
     </button>
 
-    <button class="satellite s2" data-page="Documents">
+    <button class="satellite s2" data-page="Documents" aria-label="Documents">
       <span class="icon">📚</span>
       Documents
     </button>
 
-    <button class="satellite s3" data-page="Téléchargements">
+    <button class="satellite s3" data-page="Téléchargements" aria-label="Fichiers">
       <span class="icon">⬇️</span>
       Fichiers
     </button>
 
-    <button class="satellite s4" data-page="Publier">
+    <button class="satellite s4" data-page="Publier" aria-label="Publier">
       <span class="icon">➕</span>
       Publier
     </button>
 
-    <button class="satellite s5" data-page="Profil">
+    <button class="satellite s5" data-page="Profil" aria-label="Profil">
       <span class="icon">👤</span>
       Profil
     </button>
 
-    <button class="center" id="center">
+    <button class="center" id="center" aria-label="Menu principal SIA">
       <span class="icon">✦</span>
       <strong>SIA</strong>
-      <small>Toucher pour explorer</small>
+      <small id="centerSubtitle">Toucher pour explorer</small>
     </button>
 
   </div>
 
   <p class="hint" id="hint">
-    Touche le bouton central pour afficher les satellites.
+    Touche le bouton central pour afficher les satellites ou glisse vers l'un d'eux.
   </p>
 
   <section class="destination" id="destination">
-
     <h2 id="pageTitle"></h2>
-
     <p id="pageDescription"></p>
-
-    <button onclick="closePage()">
-      Retour
+    <button class="back-btn" onclick="closePage()">
+      ← Retour
     </button>
-
   </section>
 
 </div>
@@ -350,6 +508,7 @@ h1 span {
 <script>
 const menu = document.getElementById("menu");
 const center = document.getElementById("center");
+const centerSubtitle = document.getElementById("centerSubtitle");
 const hint = document.getElementById("hint");
 
 const destination = document.getElementById("destination");
@@ -358,38 +517,50 @@ const pageDescription = document.getElementById("pageDescription");
 
 const satellites = document.querySelectorAll(".satellite");
 
+// Recherche
+const searchInput = document.getElementById("searchInput");
+const searchClear = document.getElementById("searchClear");
+const searchResults = document.getElementById("searchResults");
+
+const sampleDocs = [
+  { title: "Mathématiques : Algèbre linéaire L1", tag: "L1" },
+  { title: "Droit Civil : Introduction générale & Contrats", tag: "L2" },
+  { title: "Économie & Gestion : Microéconomie approfondie", tag: "L2" },
+  { title: "Informatique : Algorithmes & Structures de données", tag: "L3" },
+  { title: "Physique : Mécanique quantique & Ondes", tag: "L3" },
+  { title: "Anglais : Préparation TOEIC & Vocabulaire Pro", tag: "Tous" }
+];
+
 let isOpen = false;
 let isDragging = false;
 let moved = false;
 
 let startX = 0;
 let startY = 0;
-
 let initialX = 0;
 let initialY = 0;
 
 const pages = {
-  Recherche: "Recherche des documents par matière ou niveau.",
-  Documents: "Consulte les documents disponibles sur SIA.",
-  Téléchargements: "Retrouve les documents que tu as achetés.",
-  Publier: "Publie tes documents pour les proposer à la vente.",
-  Profil: "Gère ton compte et tes publications."
+  Recherche: "Recherche des documents par matière, niveau ou filière d'études.",
+  Documents: "Consulte l'ensemble des documents disponibles sur la plateforme SIA.",
+  Téléchargements: "Retrouve et télécharge tous les cours et documents que tu as achetés.",
+  Publier: "Dépose tes cours et fiches de révision pour les proposer à la vente.",
+  Profil: "Gère ton compte étudiant, tes préférences et l'historique de tes ventes."
 };
 
 function openMenu() {
   isOpen = true;
   menu.classList.add("open");
-
-  hint.textContent =
-    "Fais glisser le bouton central vers un satellite.";
+  centerSubtitle.textContent = "Glisser ou fermer";
+  hint.textContent = "Fais glisser le bouton central vers un satellite ou clique pour choisir.";
 }
 
 function closeMenu() {
   isOpen = false;
   menu.classList.remove("open");
-
-  hint.textContent =
-    "Touche le bouton central pour afficher les satellites.";
+  centerSubtitle.textContent = "Toucher pour explorer";
+  hint.textContent = "Touche le bouton central pour afficher les satellites.";
+  clearHighlights();
 }
 
 function toggleMenu() {
@@ -400,14 +571,78 @@ function toggleMenu() {
   }
 }
 
-center.addEventListener("pointerdown", function(e) {
+// Réinitialisation fluide et sans saccade du bouton central
+function resetCenter(animated = true) {
+  clearHighlights();
+  if (animated) {
+    center.classList.add("returning");
+    center.style.left = "50%";
+    center.style.top = "50%";
+    center.style.transform = "translate(-50%, -50%)";
 
-  if (destination.classList.contains("active")) {
-    return;
+    setTimeout(() => {
+      center.classList.remove("returning");
+      center.style.left = "";
+      center.style.top = "";
+      center.style.transform = "";
+    }, 360);
+  } else {
+    center.classList.remove("returning");
+    center.style.left = "";
+    center.style.top = "";
+    center.style.transform = "";
   }
+}
+
+function clearHighlights() {
+  satellites.forEach(s => s.classList.remove("highlight"));
+}
+
+function getHoveredSatellite() {
+  const centerRect = center.getBoundingClientRect();
+  const cX = centerRect.left + centerRect.width / 2;
+  const cY = centerRect.top + centerRect.height / 2;
+
+  let selected = null;
+  let closestDist = Infinity;
+
+  satellites.forEach(satellite => {
+    const sRect = satellite.getBoundingClientRect();
+    const sX = sRect.left + sRect.width / 2;
+    const sY = sRect.top + sRect.height / 2;
+    const dist = Math.hypot(cX - sX, cY - sY);
+
+    const overlapX = Math.min(centerRect.right, sRect.right) - Math.max(centerRect.left, sRect.left);
+    const overlapY = Math.min(centerRect.bottom, sRect.bottom) - Math.max(centerRect.top, sRect.top);
+
+    // Détection par collision de boîte ou proximité du centre
+    if ((overlapX > 0 && overlapY > 0) || dist < 68) {
+      if (dist < closestDist) {
+        closestDist = dist;
+        selected = satellite;
+      }
+    }
+  });
+
+  return selected;
+}
+
+function updateHighlight() {
+  const target = getHoveredSatellite();
+  satellites.forEach(satellite => {
+    if (satellite === target) {
+      satellite.classList.add("highlight");
+    } else {
+      satellite.classList.remove("highlight");
+    }
+  });
+}
+
+// Gestion des gestes tactiles & souris (Pointer Events)
+center.addEventListener("pointerdown", function(e) {
+  if (destination.classList.contains("active")) return;
 
   e.preventDefault();
-
   isDragging = true;
   moved = false;
 
@@ -420,155 +655,169 @@ center.addEventListener("pointerdown", function(e) {
   initialX = centerRect.left - menuRect.left;
   initialY = centerRect.top - menuRect.top;
 
+  center.classList.remove("returning");
   center.setPointerCapture(e.pointerId);
-
-  if (!isOpen) {
-    openMenu();
-  }
 });
 
 center.addEventListener("pointermove", function(e) {
-
   if (!isDragging) return;
 
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+  if (Math.hypot(dx, dy) > 6) {
     moved = true;
   }
 
   if (!moved) return;
 
-  const menuRect = menu.getBoundingClientRect();
+  // Ouvrir automatiquement les satellites si on commence à glisser
+  if (!isOpen) {
+    openMenu();
+  }
 
+  const menuRect = menu.getBoundingClientRect();
   const size = center.offsetWidth;
   const height = center.offsetHeight;
 
   let x = initialX + dx;
   let y = initialY + dy;
 
-  x = Math.max(
-    0,
-    Math.min(menuRect.width - size, x)
-  );
-
-  y = Math.max(
-    0,
-    Math.min(menuRect.height - height, y)
-  );
+  // Limiter le déplacement à l'intérieur de la zone de menu
+  x = Math.max(0, Math.min(menuRect.width - size, x));
+  y = Math.max(0, Math.min(menuRect.height - height, y));
 
   center.style.left = x + "px";
   center.style.top = y + "px";
-
   center.style.transform = "none";
+
+  // Mettre à jour la surbrillance du satellite sous le curseur
+  updateHighlight();
 });
 
-center.addEventListener("pointerup", function() {
-
+center.addEventListener("pointerup", function(e) {
   if (!isDragging) return;
-
   isDragging = false;
+
+  try {
+    center.releasePointerCapture(e.pointerId);
+  } catch (err) {}
 
   if (moved) {
-    selectSatellite();
-  }
-});
-
-center.addEventListener("pointercancel", function() {
-  isDragging = false;
-});
-
-function selectSatellite() {
-
-  const centerRect = center.getBoundingClientRect();
-
-  let selected = null;
-  let closestDistance = Infinity;
-
-  satellites.forEach(function(satellite) {
-
-    const satelliteRect = satellite.getBoundingClientRect();
-
-    const overlapX =
-      Math.min(centerRect.right, satelliteRect.right) -
-      Math.max(centerRect.left, satelliteRect.left);
-
-    const overlapY =
-      Math.min(centerRect.bottom, satelliteRect.bottom) -
-      Math.max(centerRect.top, satelliteRect.top);
-
-    if (overlapX > 0 && overlapY > 0) {
-
-      const centerX =
-        satelliteRect.left + satelliteRect.width / 2;
-
-      const centerY =
-        satelliteRect.top + satelliteRect.height / 2;
-
-      const distance = Math.hypot(
-        centerRect.left + centerRect.width / 2 - centerX,
-        centerRect.top + centerRect.height / 2 - centerY
-      );
-
-      if (distance < closestDistance) {
-        selected = satellite;
-        closestDistance = distance;
-      }
+    const target = getHoveredSatellite();
+    if (target) {
+      openPage(target.dataset.page);
+      resetCenter(false);
+    } else {
+      resetCenter(true);
     }
-  });
-
-  if (selected) {
-    openPage(selected.dataset.page);
+  } else {
+    // Clic simple sans glissement : bascule ouverture / fermeture
+    toggleMenu();
+    resetCenter(false);
   }
-}
-
-center.addEventListener("click", function() {
-
-  if (moved) return;
-
-  if (!isOpen) {
-    openMenu();
-  }
-
 });
 
+center.addEventListener("pointercancel", function(e) {
+  isDragging = false;
+  try {
+    center.releasePointerCapture(e.pointerId);
+  } catch (err) {}
+  resetCenter(true);
+});
+
+// Clic direct sur les satellites
 satellites.forEach(function(satellite) {
-
   satellite.addEventListener("click", function(e) {
-
     e.stopPropagation();
-
     openPage(this.dataset.page);
-
   });
-
 });
 
-function openPage(page) {
-
+function openPage(page, query = "") {
   pageTitle.textContent = page;
-
-  pageDescription.textContent = pages[page];
+  let desc = pages[page] || "";
+  if (query) {
+    desc += ` — Résultats filtrés pour : "${query}"`;
+  }
+  pageDescription.textContent = desc;
 
   destination.classList.add("active");
-
   menu.style.display = "none";
   hint.style.display = "none";
+  searchResults.style.display = "none";
 }
 
 function closePage() {
-
   destination.classList.remove("active");
-
   menu.style.display = "";
   hint.style.display = "";
 
+  resetCenter(false);
   openMenu();
 }
 
+// Recherche interactive
+searchInput.addEventListener("input", function() {
+  const val = this.value.trim().toLowerCase();
+
+  if (val.length > 0) {
+    searchClear.style.display = "block";
+
+    const matches = sampleDocs.filter(d => 
+      d.title.toLowerCase().includes(val) || d.tag.toLowerCase().includes(val)
+    );
+
+    if (matches.length > 0) {
+      searchResults.innerHTML = matches.map(d => `
+        <div class="search-result-item" data-title="${d.title}">
+          <span>${d.title}</span>
+          <span class="tag">${d.tag}</span>
+        </div>
+      `).join("");
+      searchResults.style.display = "block";
+
+      document.querySelectorAll(".search-result-item").forEach(item => {
+        item.addEventListener("click", function() {
+          openPage("Documents", this.dataset.title);
+          searchResults.style.display = "none";
+        });
+      });
+    } else {
+      searchResults.innerHTML = `
+        <div class="search-result-item" style="color: var(--muted); cursor: default;">
+          Aucun document trouvé pour "${val}"
+        </div>
+      `;
+      searchResults.style.display = "block";
+    }
+  } else {
+    searchClear.style.display = "none";
+    searchResults.style.display = "none";
+  }
+});
+
+searchClear.addEventListener("click", function() {
+  searchInput.value = "";
+  this.style.display = "none";
+  searchResults.style.display = "none";
+  searchInput.focus();
+});
+
+searchInput.addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && this.value.trim().length > 0) {
+    openPage("Recherche", this.value.trim());
+    searchResults.style.display = "none";
+  }
+});
+
+// Fermer les résultats si clic extérieur
+document.addEventListener("click", function(e) {
+  if (!e.target.closest(".search-container")) {
+    searchResults.style.display = "none";
+  }
+});
 </script>
 
 </body>
 </html>
-
