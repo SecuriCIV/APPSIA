@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SIA — Menu circulaire</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * {
@@ -418,6 +419,106 @@ h1 span {
   transform: translateY(-1px);
 }
 
+/* Badge & Contenu Supabase */
+.supabase-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #10b98118;
+  color: #059669;
+  border: 1px solid #10b98135;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.supabase-badge.offline {
+  background: #f59e0b18;
+  color: #d97706;
+  border-color: #f59e0b35;
+}
+
+.page-content {
+  margin-top: 15px;
+  margin-bottom: 25px;
+}
+
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doc-item {
+  padding: 12px 16px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.publish-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.publish-form input,
+.publish-form select {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+.publish-form input:focus,
+.publish-form select:focus {
+  border-color: var(--primary);
+}
+
+.publish-form button.submit-btn {
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+
+.publish-form button.submit-btn:hover {
+  opacity: .9;
+}
+
+.status-message {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  display: none;
+}
+
+.status-message.success {
+  display: block;
+  background: #10b98118;
+  color: #059669;
+}
+
+.status-message.error {
+  display: block;
+  background: #ef444418;
+  color: #dc2626;
+}
+
 /* Écrans très étroits */
 @media (max-width: 360px) {
   .menu { transform: scale(.88); transform-origin: top center; height: 330px; }
@@ -512,8 +613,12 @@ h1 span {
   </p>
 
   <section class="destination" id="destination">
-    <h2 id="pageTitle"></h2>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h2 id="pageTitle" style="margin:0;"></h2>
+      <span id="supabaseBadge" class="supabase-badge">● Supabase connecté</span>
+    </div>
     <p id="pageDescription"></p>
+    <div id="pageContent" class="page-content"></div>
     <button class="back-btn" onclick="closePage()">
       ← Retour
     </button>
@@ -530,8 +635,17 @@ const hint = document.getElementById("hint");
 const destination = document.getElementById("destination");
 const pageTitle = document.getElementById("pageTitle");
 const pageDescription = document.getElementById("pageDescription");
+const pageContent = document.getElementById("pageContent");
+const supabaseBadge = document.getElementById("supabaseBadge");
 
 const satellites = document.querySelectorAll(".satellite");
+
+// Configuration Supabase
+const SUPABASE_URL = "https://jlqmdiaeahjlbwcjlruo.supabase.co";
+const SUPABASE_KEY = "sb_publishable_UocWPJUVWOxxBEGDveO0gg_1nZt18vC";
+const supabase = (window.supabase && typeof window.supabase.createClient === "function")
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
 
 // Recherche
 const searchInput = document.getElementById("searchInput");
@@ -546,6 +660,38 @@ const sampleDocs = [
   { title: "Physique : Mécanique quantique & Ondes", tag: "L3" },
   { title: "Anglais : Préparation TOEIC & Vocabulaire Pro", tag: "Tous" }
 ];
+
+let appDocs = [...sampleDocs];
+
+async function initSupabase() {
+  if (!supabase) {
+    if (supabaseBadge) {
+      supabaseBadge.textContent = "● Mode local";
+      supabaseBadge.classList.add("offline");
+    }
+    return;
+  }
+  try {
+    const { data, error } = await supabase.from('documents').select('*');
+    if (!error && data && data.length > 0) {
+      const dbDocs = data.map(d => ({
+        title: d.title || d.name,
+        tag: d.tag || "Supabase"
+      }));
+      appDocs = [...dbDocs, ...sampleDocs.filter(s => !dbDocs.some(d => d.title === s.title))];
+      if (supabaseBadge) {
+        supabaseBadge.textContent = `● Supabase synchronisé (${dbDocs.length})`;
+      }
+    } else {
+      if (supabaseBadge) {
+        supabaseBadge.textContent = "● Supabase connecté";
+      }
+    }
+  } catch (err) {
+    console.warn("Supabase notice:", err);
+  }
+}
+initSupabase();
 
 let isOpen = false;
 let isDragging = false;
@@ -776,6 +922,8 @@ function openPage(page, query = "") {
   }
   pageDescription.textContent = desc;
 
+  renderPageContent(page, query);
+
   destination.classList.add("active");
   menu.style.display = "none";
   hint.style.display = "none";
@@ -783,6 +931,151 @@ function openPage(page, query = "") {
 
   pageTitle.setAttribute("tabindex", "-1");
   pageTitle.focus();
+}
+
+function renderPageContent(page, query = "") {
+  pageContent.replaceChildren();
+
+  if (page === "Documents") {
+    const list = document.createElement("div");
+    list.className = "doc-list";
+
+    let docsToShow = appDocs;
+    if (query) {
+      const q = normalize(query);
+      docsToShow = appDocs.filter(d => normalize(d.title).includes(q) || normalize(d.tag).includes(q));
+    }
+
+    if (docsToShow.length === 0) {
+      list.innerHTML = `<div style="color:var(--muted); text-align:center; padding:20px;">Aucun document ne correspond à "${query}".</div>`;
+    } else {
+      docsToShow.forEach(d => {
+        const item = document.createElement("div");
+        item.className = "doc-item";
+        item.innerHTML = `
+          <div>
+            <strong>${d.title}</strong>
+            <div style="font-size:12px; color:var(--muted); margin-top:3px;">Filière / Niveau</div>
+          </div>
+          <span class="tag" style="background:#ff3b9d15; color:var(--primary); padding:4px 8px; border-radius:8px; font-weight:700;">${d.tag}</span>
+        `;
+        list.appendChild(item);
+      });
+    }
+    pageContent.appendChild(list);
+  }
+  else if (page === "Publier") {
+    const form = document.createElement("div");
+    form.className = "publish-form";
+    form.innerHTML = `
+      <input type="text" id="newDocTitle" placeholder="Titre du document (ex: Fiche Révision Droit L1)" required>
+      <input type="text" id="newDocTag" placeholder="Niveau ou Matière (ex: L1 - Droit)" required>
+      <button type="button" id="publishDocBtn" class="submit-btn">Publier le document</button>
+      <div id="publishMsg" class="status-message"></div>
+    `;
+    pageContent.appendChild(form);
+
+    setTimeout(() => {
+      const btn = document.getElementById("publishDocBtn");
+      const titleInput = document.getElementById("newDocTitle");
+      const tagInput = document.getElementById("newDocTag");
+      const msg = document.getElementById("publishMsg");
+
+      btn.addEventListener("click", async () => {
+        const title = titleInput.value.trim();
+        const tag = tagInput.value.trim();
+
+        if (!title || !tag) {
+          msg.className = "status-message error";
+          msg.textContent = "Veuillez remplir le titre et le niveau.";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Publication en cours...";
+
+        let insertedInCloud = false;
+        if (supabase) {
+          try {
+            const { error } = await supabase.from('documents').insert([{ title, tag }]);
+            if (!error) insertedInCloud = true;
+          } catch (e) {
+            console.warn("Supabase insert:", e);
+          }
+        }
+
+        // Ajout immédiat à la liste locale
+        appDocs.unshift({ title, tag });
+        titleInput.value = "";
+        tagInput.value = "";
+        btn.disabled = false;
+        btn.textContent = "Publier le document";
+
+        msg.className = "status-message success";
+        msg.textContent = insertedInCloud 
+          ? `✅ Document publié et synchronisé avec Supabase !`
+          : `✅ Document publié dans votre catalogue local !`;
+      });
+    }, 50);
+  }
+  else if (page === "Téléchargements") {
+    const list = document.createElement("div");
+    list.className = "doc-list";
+    const downloaded = [
+      { title: "Introduction générale au droit L1", date: "Hier à 16:30", size: "2.4 Mo (PDF)" },
+      { title: "Fiche Algèbre linéaire & Matrices", date: "Il y a 3 jours", size: "1.1 Mo (PDF)" }
+    ];
+    downloaded.forEach(d => {
+      const item = document.createElement("div");
+      item.className = "doc-item";
+      item.innerHTML = `
+        <div>
+          <strong>${d.title}</strong>
+          <div style="font-size:12px; color:var(--muted); margin-top:3px;">${d.date} • ${d.size}</div>
+        </div>
+        <button type="button" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; font-weight:600; cursor:pointer;" onclick="alert('Téléchargement du fichier lancé !')">Ouvrir</button>
+      `;
+      list.appendChild(item);
+    });
+    pageContent.appendChild(list);
+  }
+  else if (page === "Profil") {
+    const card = document.createElement("div");
+    card.innerHTML = `
+      <div style="padding:15px; background:var(--background); border:1px solid var(--border); border-radius:14px; margin-bottom:15px;">
+        <div style="font-size:18px; font-weight:700;">Glenn</div>
+        <div style="color:var(--muted); font-size:13px; margin-top:2px;">Étudiant • Membre SIA Premium</div>
+        <div style="margin-top:12px; display:flex; gap:10px;">
+          <div style="flex:1; background:var(--card); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:18px; font-weight:800; color:var(--primary);">${appDocs.length}</div>
+            <div style="font-size:11px; color:var(--muted);">Documents</div>
+          </div>
+          <div style="flex:1; background:var(--card); padding:10px; border-radius:10px; text-align:center;">
+            <div style="font-size:18px; font-weight:800; color:var(--secondary);">2</div>
+            <div style="font-size:11px; color:var(--muted);">Achats</div>
+          </div>
+        </div>
+      </div>
+      <div style="padding:12px 15px; background:var(--background); border:1px solid var(--border); border-radius:14px; font-size:13px;">
+        <strong>Base de données Cloud :</strong>
+        <div style="color:var(--muted); margin-top:4px; font-family:monospace; font-size:11px;">https://jlqmdiaeahjlbwcjlruo.supabase.co</div>
+      </div>
+    `;
+    pageContent.appendChild(card);
+  }
+  else if (page === "Recherche") {
+    const pills = document.createElement("div");
+    pills.style.cssText = "display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;";
+    ["Tous", "Mathématiques", "Droit", "Économie", "Informatique", "Physique"].forEach(cat => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = cat;
+      btn.style.cssText = "padding:6px 12px; border:1px solid var(--border); background:var(--background); border-radius:20px; font-size:12px; cursor:pointer; font-weight:600; color:var(--text);";
+      btn.onclick = () => openPage("Documents", cat === "Tous" ? "" : cat);
+      pills.appendChild(btn);
+    });
+    pageContent.appendChild(pills);
+  }
 }
 
 function closePage() {
@@ -866,7 +1159,7 @@ const runSearch = debounce(function () {
 
   searchClear.style.display = "block";
 
-  const matches = sampleDocs.filter(d =>
+  const matches = appDocs.filter(d =>
     normalize(d.title).includes(val) || normalize(d.tag).includes(val)
   );
 
