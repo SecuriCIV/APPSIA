@@ -51,11 +51,11 @@ header {
 }
 
 .avatar {
-  background: none;
-  border: none;
-  padding: 0;
   font-size: 24px;
   cursor: pointer;
+  background: none;
+  border: none;
+  padding: 4px;
   transition: transform .2s ease;
 }
 
@@ -409,6 +409,12 @@ h1 span {
 .destination button.back-btn:hover {
   background: #e62e8b;
   transform: translateY(-1px);
+}
+
+/* Écrans très étroits */
+@media (max-width: 360px) {
+  .menu { transform: scale(.88); transform-origin: top center; height: 330px; }
+  .logo { font-size: 26px; }
 }
 
 /* Mode sombre */
