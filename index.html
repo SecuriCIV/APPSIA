@@ -772,47 +772,70 @@ function debounce(fn, delay = 200) {
   };
 }
 
-// Recherche interactive
-const handleSearch = debounce(function() {
-  const val = normalize(searchInput.value.trim());
+function renderResults(matches, rawValue) {
+  searchResults.replaceChildren();
 
-  if (val.length > 0) {
-    searchClear.style.display = "block";
+  if (matches.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "search-result-item";
+    empty.style.color = "var(--muted)";
+    empty.style.cursor = "default";
+    empty.textContent = `Aucun document trouvé pour "${rawValue}"`;
+    searchResults.appendChild(empty);
+    searchResults.style.display = "block";
+    return;
+  }
 
-    const matches = sampleDocs.filter(d => 
-      normalize(d.title).includes(val) || normalize(d.tag).includes(val)
-    );
+  matches.forEach(d => {
+    const item = document.createElement("div");
+    item.className = "search-result-item";
+    item.setAttribute("role", "option");
+    item.tabIndex = 0;
 
-    if (matches.length > 0) {
-      searchResults.innerHTML = matches.map(d => `
-        <div class="search-result-item" data-title="${d.title}">
-          <span>${d.title}</span>
-          <span class="tag">${d.tag}</span>
-        </div>
-      `).join("");
-      searchResults.style.display = "block";
+    const title = document.createElement("span");
+    title.textContent = d.title;
 
-      document.querySelectorAll(".search-result-item").forEach(item => {
-        item.addEventListener("click", function() {
-          openPage("Documents", this.dataset.title);
-          searchResults.style.display = "none";
-        });
-      });
-    } else {
-      searchResults.innerHTML = `
-        <div class="search-result-item" style="color: var(--muted); cursor: default;">
-          Aucun document trouvé pour "${searchInput.value.trim()}"
-        </div>
-      `;
-      searchResults.style.display = "block";
-    }
-  } else {
+    const tag = document.createElement("span");
+    tag.className = "tag";
+    tag.textContent = d.tag;
+
+    item.append(title, tag);
+
+    const choose = () => {
+      openPage("Documents", d.title);
+      searchResults.style.display = "none";
+    };
+    item.addEventListener("click", choose);
+    item.addEventListener("keydown", e => {
+      if (e.key === "Enter") choose();
+    });
+
+    searchResults.appendChild(item);
+  });
+
+  searchResults.style.display = "block";
+}
+
+const runSearch = debounce(function () {
+  const raw = searchInput.value.trim();
+  const val = normalize(raw);
+
+  if (val.length === 0) {
     searchClear.style.display = "none";
     searchResults.style.display = "none";
+    return;
   }
-}, 180);
 
-searchInput.addEventListener("input", handleSearch);
+  searchClear.style.display = "block";
+
+  const matches = sampleDocs.filter(d =>
+    normalize(d.title).includes(val) || normalize(d.tag).includes(val)
+  );
+
+  renderResults(matches, raw);
+});
+
+searchInput.addEventListener("input", runSearch);
 
 searchClear.addEventListener("click", function() {
   searchInput.value = "";
