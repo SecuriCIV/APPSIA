@@ -746,6 +746,9 @@ function openPage(page, query = "") {
   menu.style.display = "none";
   hint.style.display = "none";
   searchResults.style.display = "none";
+
+  pageTitle.setAttribute("tabindex", "-1");
+  pageTitle.focus();
 }
 
 function closePage() {
@@ -755,6 +758,7 @@ function closePage() {
 
   resetCenter(false);
   openMenu();
+  center.focus();
 }
 
 function normalize(text) {
