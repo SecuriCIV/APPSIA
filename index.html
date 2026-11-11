@@ -29,6 +29,13 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+button:focus-visible,
+.search-result-item:focus-visible,
+.search-input:focus-visible {
+  outline: 3px solid var(--secondary);
+  outline-offset: 3px;
+}
+
 .app {
   width: 100%;
   max-width: 480px;
