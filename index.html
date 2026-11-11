@@ -553,6 +553,7 @@ function openMenu() {
   menu.classList.add("open");
   centerSubtitle.textContent = "Glisser ou fermer";
   hint.textContent = "Fais glisser le bouton central vers un satellite ou clique pour choisir.";
+  center.setAttribute("aria-expanded", "true");
 }
 
 function closeMenu() {
@@ -560,6 +561,7 @@ function closeMenu() {
   menu.classList.remove("open");
   centerSubtitle.textContent = "Toucher pour explorer";
   hint.textContent = "Touche le bouton central pour afficher les satellites.";
+  center.setAttribute("aria-expanded", "false");
   clearHighlights();
 }
 
@@ -724,6 +726,22 @@ center.addEventListener("pointercancel", function(e) {
     center.releasePointerCapture(e.pointerId);
   } catch (err) {}
   resetCenter(true);
+});
+
+center.setAttribute("aria-expanded", "false");
+
+center.addEventListener("keydown", function (e) {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    toggleMenu();
+  }
+});
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && isOpen) {
+    closeMenu();
+    center.focus();
+  }
 });
 
 // Clic direct sur les satellites
