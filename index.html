@@ -757,15 +757,30 @@ function closePage() {
   openMenu();
 }
 
+function normalize(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function debounce(fn, delay = 200) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
 // Recherche interactive
-searchInput.addEventListener("input", function() {
-  const val = this.value.trim().toLowerCase();
+const handleSearch = debounce(function() {
+  const val = normalize(searchInput.value.trim());
 
   if (val.length > 0) {
     searchClear.style.display = "block";
 
     const matches = sampleDocs.filter(d => 
-      d.title.toLowerCase().includes(val) || d.tag.toLowerCase().includes(val)
+      normalize(d.title).includes(val) || normalize(d.tag).includes(val)
     );
 
     if (matches.length > 0) {
@@ -786,7 +801,7 @@ searchInput.addEventListener("input", function() {
     } else {
       searchResults.innerHTML = `
         <div class="search-result-item" style="color: var(--muted); cursor: default;">
-          Aucun document trouvé pour "${val}"
+          Aucun document trouvé pour "${searchInput.value.trim()}"
         </div>
       `;
       searchResults.style.display = "block";
@@ -795,7 +810,9 @@ searchInput.addEventListener("input", function() {
     searchClear.style.display = "none";
     searchResults.style.display = "none";
   }
-});
+}, 180);
+
+searchInput.addEventListener("input", handleSearch);
 
 searchClear.addEventListener("click", function() {
   searchInput.value = "";
