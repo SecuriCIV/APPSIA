@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SIA — Menu circulaire</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * {
@@ -18,7 +17,6 @@
   --text: #29152f;
   --card: #ffffff;
   --muted: #99899d;
-  --border: #f0e2ed;
 }
 
 body {
@@ -26,13 +24,11 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
-button:focus-visible,
-.search-result-item:focus-visible,
-.search-input:focus-visible {
+button:focus-visible {
   outline: 3px solid var(--secondary);
   outline-offset: 3px;
 }
@@ -55,7 +51,6 @@ header {
   font-size: 30px;
   font-weight: 900;
   color: var(--primary);
-  letter-spacing: -0.5px;
 }
 
 .avatar {
@@ -74,7 +69,6 @@ header {
 h1 {
   margin-top: 35px;
   font-size: 27px;
-  font-weight: 800;
 }
 
 h1 span {
@@ -84,111 +78,24 @@ h1 span {
 .subtitle {
   color: var(--muted);
   font-size: 14px;
-  margin-top: 6px;
 }
 
-/* Recherche interactive */
-.search-container {
-  position: relative;
+.search {
   margin-top: 25px;
-}
-
-.search-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
+  padding: 17px;
   background: var(--card);
-  border: 1px solid var(--border);
   border-radius: 16px;
+  color: var(--muted);
   box-shadow: 0 5px 20px #00000008;
-  transition: border-color .2s ease, box-shadow .2s ease;
 }
 
-.search-wrap:focus-within {
-  border-color: var(--primary);
-  box-shadow: 0 5px 25px #ff3b9d15;
-}
-
-.search-icon {
-  font-size: 18px;
-  opacity: .7;
-}
-
-.search-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-size: 15px;
-  outline: none;
-}
-
-.search-input::placeholder {
-  color: var(--muted);
-}
-
-.search-clear {
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 4px;
-  display: none;
-}
-
-.search-results {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 10px 30px #00000012;
-  overflow: hidden;
-  z-index: 20;
-  display: none;
-}
-
-.search-result-item {
-  padding: 12px 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-  transition: background .15s ease;
-}
-
-.search-result-item:last-child {
-  border-bottom: none;
-}
-
-.search-result-item:hover {
-  background: #ff3b9d0c;
-  color: var(--primary);
-}
-
-.search-result-item span.tag {
-  font-size: 11px;
-  padding: 3px 8px;
-  border-radius: 8px;
-  background: #ff3b9d15;
-  color: var(--primary);
-  font-weight: 600;
-}
-
-/* Menu orbital */
 .menu {
   position: relative;
   width: 100%;
   height: 360px;
   margin-top: 25px;
-  overflow: visible;
-  touch-action: none;
+  overflow: hidden;
+  touch-action: pan-y;
 }
 
 .orbit {
@@ -196,19 +103,18 @@ h1 span {
   width: 280px;
   height: 280px;
   left: 50%;
-  top: 40px;
+  top: 35px;
   transform: translateX(-50%);
-  border: 2px dashed #e8c9df;
+  border: 1px dashed #e8c9df;
   border-radius: 50%;
   pointer-events: none;
-  transition: opacity .3s ease;
 }
 
 .satellite {
   position: absolute;
   width: 76px;
   height: 76px;
-  border: 2px solid transparent;
+  border: none;
   border-radius: 50%;
   background: var(--card);
   color: var(--text);
@@ -218,10 +124,9 @@ h1 span {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
 
   font-size: 11px;
-  font-weight: 600;
   cursor: pointer;
 
   opacity: 0;
@@ -230,40 +135,38 @@ h1 span {
 
   transition:
     opacity .25s ease,
-    transform .35s cubic-bezier(.2,.8,.2,1),
-    border-color .2s ease,
-    box-shadow .2s ease;
+    transform .35s cubic-bezier(.2,.8,.2,1);
 
   z-index: 2;
 }
 
 .s1 {
   left: 50%;
-  top: 5px;
+  top: 0;
   transform: translate(-50%, 45px) scale(.4);
 }
 
 .s2 {
-  right: 15px;
-  top: 90px;
+  right: 0;
+  top: 85px;
   transform: translate(-35px, 20px) scale(.4);
 }
 
 .s3 {
-  right: 35px;
-  bottom: 25px;
+  right: 0;
+  bottom: 20px;
   transform: translate(-35px, -20px) scale(.4);
 }
 
 .s4 {
-  left: 35px;
-  bottom: 25px;
+  left: 0;
+  bottom: 20px;
   transform: translate(35px, -20px) scale(.4);
 }
 
 .s5 {
-  left: 15px;
-  top: 90px;
+  left: 0;
+  top: 85px;
   transform: translate(35px, 20px) scale(.4);
 }
 
@@ -284,28 +187,10 @@ h1 span {
   transform: translate(0, 0) scale(1);
 }
 
-/* Feedback d'aimant & highlight au survol */
-.satellite.highlight {
-  transform: translate(0, 0) scale(1.22) !important;
-  border-color: var(--primary) !important;
-  box-shadow: 0 0 0 4px #ff3b9d30, 0 12px 30px #ff3b9d30 !important;
-  color: var(--primary);
-}
-
-.menu.open .s1.highlight {
-  transform: translate(-50%, 0) scale(1.22) !important;
-}
-
 .satellite .icon {
-  font-size: 24px;
-  transition: transform .2s ease;
+  font-size: 25px;
 }
 
-.satellite.highlight .icon {
-  transform: scale(1.15);
-}
-
-/* Bouton central SIA */
 .center {
   position: absolute;
   width: 130px;
@@ -313,12 +198,18 @@ h1 span {
 
   left: 50%;
   top: 50%;
+
   transform: translate(-50%, -50%);
 
   border: 5px solid white;
   border-radius: 50%;
 
-  background: linear-gradient(145deg, #ff4da6, #a855f7);
+  background: linear-gradient(
+    145deg,
+    #ff4da6,
+    #a855f7
+  );
+
   color: white;
 
   box-shadow: 0 15px 40px #e63c9e50;
@@ -347,200 +238,63 @@ h1 span {
 }
 
 .center .icon {
-  font-size: 34px;
+  font-size: 35px;
 }
 
 .center strong {
-  margin-top: 4px;
+  margin-top: 5px;
   font-size: 16px;
-  letter-spacing: 0.5px;
 }
 
 .center small {
-  margin-top: 3px;
+  margin-top: 4px;
   font-size: 10px;
-  opacity: .9;
+  opacity: .85;
 }
 
 .hint {
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
-  margin-top: 10px;
-  transition: color .2s ease;
 }
 
-/* Page de destination */
 .destination {
   display: none;
   margin-top: 25px;
   padding: 25px;
   background: var(--card);
-  border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: 0 5px 20px #00000008;
-  animation: fadeIn .3s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .destination.active {
   display: block;
 }
 
-.destination h2 {
-  margin: 0 0 10px 0;
-  font-size: 22px;
-  color: var(--primary);
-}
-
-.destination p {
-  color: var(--text);
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.destination button.back-btn {
-  padding: 12px 24px;
+.destination button {
+  padding: 12px 20px;
   border: none;
   border-radius: 12px;
   background: var(--primary);
   color: white;
-  font-weight: 600;
   cursor: pointer;
-  transition: background .2s ease, transform .15s ease;
 }
 
-.destination button.back-btn:hover {
-  background: #e62e8b;
-  transform: translateY(-1px);
-}
-
-/* Badge & Contenu Supabase */
-.supabase-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: #10b98118;
-  color: #059669;
-  border: 1px solid #10b98135;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.supabase-badge.offline {
-  background: #f59e0b18;
-  color: #d97706;
-  border-color: #f59e0b35;
-}
-
-.page-content {
-  margin-top: 15px;
-  margin-bottom: 25px;
-}
-
-.doc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.doc-item {
-  padding: 12px 16px;
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 14px;
-}
-
-.publish-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.publish-form input,
-.publish-form select {
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--background);
-  color: var(--text);
-  font-size: 14px;
-  outline: none;
-}
-
-.publish-form input:focus,
-.publish-form select:focus {
-  border-color: var(--primary);
-}
-
-.publish-form button.submit-btn {
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: white;
-  font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  transition: opacity .2s ease;
-}
-
-.publish-form button.submit-btn:hover {
-  opacity: .9;
-}
-
-.status-message {
-  margin-top: 10px;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  display: none;
-}
-
-.status-message.success {
-  display: block;
-  background: #10b98118;
-  color: #059669;
-}
-
-.status-message.error {
-  display: block;
-  background: #ef444418;
-  color: #dc2626;
-}
-
-/* Écrans très étroits */
 @media (max-width: 360px) {
   .menu { transform: scale(.88); transform-origin: top center; height: 330px; }
   .logo { font-size: 26px; }
 }
 
-/* Mode sombre */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #15101b;
     --text: #f8eefa;
     --card: #241b2d;
     --muted: #b5a4bc;
-    --border: #3b2a47;
   }
 
   .orbit {
     border-color: #51304e;
-  }
-
-  .search-result-item:hover {
-    background: #ff3b9d15;
   }
 }
 </style>
@@ -561,67 +315,61 @@ h1 span {
     Bienvenue dans ton univers étudiant.
   </p>
 
-  <!-- Barre de recherche interactive -->
-  <div class="search-container">
-    <div class="search-wrap">
-      <span class="search-icon">🔎</span>
-      <input type="text" class="search-input" id="searchInput" placeholder="Rechercher un document, cours, matière..." autocomplete="off">
-      <button type="button" class="search-clear" id="searchClear" aria-label="Effacer">✕</button>
-    </div>
-    <div class="search-results" id="searchResults"></div>
+  <div class="search" onclick="openPage('Recherche')" style="cursor: pointer;">
+    🔎 Rechercher un document...
   </div>
 
   <div class="menu" id="menu">
 
     <div class="orbit"></div>
 
-    <button class="satellite s1" data-page="Recherche" aria-label="Recherche">
+    <button class="satellite s1" data-page="Recherche">
       <span class="icon">🔍</span>
       Recherche
     </button>
 
-    <button class="satellite s2" data-page="Documents" aria-label="Documents">
+    <button class="satellite s2" data-page="Documents">
       <span class="icon">📚</span>
       Documents
     </button>
 
-    <button class="satellite s3" data-page="Téléchargements" aria-label="Fichiers">
+    <button class="satellite s3" data-page="Téléchargements">
       <span class="icon">⬇️</span>
       Fichiers
     </button>
 
-    <button class="satellite s4" data-page="Publier" aria-label="Publier">
+    <button class="satellite s4" data-page="Publier">
       <span class="icon">➕</span>
       Publier
     </button>
 
-    <button class="satellite s5" data-page="Profil" aria-label="Profil">
+    <button class="satellite s5" data-page="Profil">
       <span class="icon">👤</span>
       Profil
     </button>
 
-    <button class="center" id="center" aria-label="Menu principal SIA">
+    <button class="center" id="center" aria-label="Menu principal SIA" aria-expanded="false">
       <span class="icon">✦</span>
       <strong>SIA</strong>
-      <small id="centerSubtitle">Toucher pour explorer</small>
+      <small>Toucher pour explorer</small>
     </button>
 
   </div>
 
   <p class="hint" id="hint">
-    Touche le bouton central pour afficher les satellites ou glisse vers l'un d'eux.
+    Touche le bouton central pour afficher les satellites.
   </p>
 
   <section class="destination" id="destination">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 id="pageTitle" style="margin:0;"></h2>
-      <span id="supabaseBadge" class="supabase-badge">● Supabase connecté</span>
-    </div>
+
+    <h2 id="pageTitle"></h2>
+
     <p id="pageDescription"></p>
-    <div id="pageContent" class="page-content"></div>
-    <button class="back-btn" onclick="closePage()">
-      ← Retour
+
+    <button onclick="closePage()">
+      Retour
     </button>
+
   </section>
 
 </div>
@@ -629,69 +377,13 @@ h1 span {
 <script>
 const menu = document.getElementById("menu");
 const center = document.getElementById("center");
-const centerSubtitle = document.getElementById("centerSubtitle");
 const hint = document.getElementById("hint");
 
 const destination = document.getElementById("destination");
 const pageTitle = document.getElementById("pageTitle");
 const pageDescription = document.getElementById("pageDescription");
-const pageContent = document.getElementById("pageContent");
-const supabaseBadge = document.getElementById("supabaseBadge");
 
 const satellites = document.querySelectorAll(".satellite");
-
-// Configuration Supabase
-const SUPABASE_URL = "https://jlqmdiaeahjlbwcjlruo.supabase.co";
-const SUPABASE_KEY = "sb_publishable_UocWPJUVWOxxBEGDveO0gg_1nZt18vC";
-const supabase = (window.supabase && typeof window.supabase.createClient === "function")
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
-
-// Recherche
-const searchInput = document.getElementById("searchInput");
-const searchClear = document.getElementById("searchClear");
-const searchResults = document.getElementById("searchResults");
-
-const sampleDocs = [
-  { title: "Mathématiques : Algèbre linéaire L1", tag: "L1" },
-  { title: "Droit Civil : Introduction générale & Contrats", tag: "L2" },
-  { title: "Économie & Gestion : Microéconomie approfondie", tag: "L2" },
-  { title: "Informatique : Algorithmes & Structures de données", tag: "L3" },
-  { title: "Physique : Mécanique quantique & Ondes", tag: "L3" },
-  { title: "Anglais : Préparation TOEIC & Vocabulaire Pro", tag: "Tous" }
-];
-
-let appDocs = [...sampleDocs];
-
-async function initSupabase() {
-  if (!supabase) {
-    if (supabaseBadge) {
-      supabaseBadge.textContent = "● Mode local";
-      supabaseBadge.classList.add("offline");
-    }
-    return;
-  }
-  try {
-    const { data, error } = await supabase.from('documents').select('*');
-    if (!error && data && data.length > 0) {
-      const dbDocs = data.map(d => ({
-        title: d.title || d.name,
-        tag: d.tag || "Supabase"
-      }));
-      appDocs = [...dbDocs, ...sampleDocs.filter(s => !dbDocs.some(d => d.title === s.title))];
-      if (supabaseBadge) {
-        supabaseBadge.textContent = `● Supabase synchronisé (${dbDocs.length})`;
-      }
-    } else {
-      if (supabaseBadge) {
-        supabaseBadge.textContent = "● Supabase connecté";
-      }
-    }
-  } catch (err) {
-    console.warn("Supabase notice:", err);
-  }
-}
-initSupabase();
 
 let isOpen = false;
 let isDragging = false;
@@ -699,32 +391,34 @@ let moved = false;
 
 let startX = 0;
 let startY = 0;
+
 let initialX = 0;
 let initialY = 0;
 
 const pages = {
-  Recherche: "Recherche des documents par matière, niveau ou filière d'études.",
-  Documents: "Consulte l'ensemble des documents disponibles sur la plateforme SIA.",
-  Téléchargements: "Retrouve et télécharge tous les cours et documents que tu as achetés.",
-  Publier: "Dépose tes cours et fiches de révision pour les proposer à la vente.",
-  Profil: "Gère ton compte étudiant, tes préférences et l'historique de tes ventes."
+  Recherche: "Recherche des documents par matière ou niveau.",
+  Documents: "Consulte les documents disponibles sur SIA.",
+  Téléchargements: "Retrouve les documents que tu as achetés.",
+  Publier: "Publie tes documents pour les proposer à la vente.",
+  Profil: "Gère ton compte et tes publications."
 };
 
 function openMenu() {
   isOpen = true;
   menu.classList.add("open");
-  centerSubtitle.textContent = "Glisser ou fermer";
-  hint.textContent = "Fais glisser le bouton central vers un satellite ou clique pour choisir.";
   center.setAttribute("aria-expanded", "true");
+
+  hint.textContent =
+    "Fais glisser le bouton central vers un satellite.";
 }
 
 function closeMenu() {
   isOpen = false;
   menu.classList.remove("open");
-  centerSubtitle.textContent = "Toucher pour explorer";
-  hint.textContent = "Touche le bouton central pour afficher les satellites.";
   center.setAttribute("aria-expanded", "false");
-  clearHighlights();
+
+  hint.textContent =
+    "Touche le bouton central pour afficher les satellites.";
 }
 
 function toggleMenu() {
@@ -735,16 +429,13 @@ function toggleMenu() {
   }
 }
 
-// Réinitialisation fluide et sans saccade du bouton central
 function resetCenter(animated = true) {
-  clearHighlights();
   if (animated) {
     center.classList.add("returning");
     center.style.left = "50%";
     center.style.top = "50%";
     center.style.transform = "translate(-50%, -50%)";
-
-    setTimeout(() => {
+    setTimeout(function() {
       center.classList.remove("returning");
       center.style.left = "";
       center.style.top = "";
@@ -758,55 +449,14 @@ function resetCenter(animated = true) {
   }
 }
 
-function clearHighlights() {
-  satellites.forEach(s => s.classList.remove("highlight"));
-}
-
-function getHoveredSatellite() {
-  const centerRect = center.getBoundingClientRect();
-  const cX = centerRect.left + centerRect.width / 2;
-  const cY = centerRect.top + centerRect.height / 2;
-
-  let selected = null;
-  let closestDist = Infinity;
-
-  satellites.forEach(satellite => {
-    const sRect = satellite.getBoundingClientRect();
-    const sX = sRect.left + sRect.width / 2;
-    const sY = sRect.top + sRect.height / 2;
-    const dist = Math.hypot(cX - sX, cY - sY);
-
-    const overlapX = Math.min(centerRect.right, sRect.right) - Math.max(centerRect.left, sRect.left);
-    const overlapY = Math.min(centerRect.bottom, sRect.bottom) - Math.max(centerRect.top, sRect.top);
-
-    // Détection par collision de boîte ou proximité du centre
-    if ((overlapX > 0 && overlapY > 0) || dist < 68) {
-      if (dist < closestDist) {
-        closestDist = dist;
-        selected = satellite;
-      }
-    }
-  });
-
-  return selected;
-}
-
-function updateHighlight() {
-  const target = getHoveredSatellite();
-  satellites.forEach(satellite => {
-    if (satellite === target) {
-      satellite.classList.add("highlight");
-    } else {
-      satellite.classList.remove("highlight");
-    }
-  });
-}
-
-// Gestion des gestes tactiles & souris (Pointer Events)
 center.addEventListener("pointerdown", function(e) {
-  if (destination.classList.contains("active")) return;
+
+  if (destination.classList.contains("active")) {
+    return;
+  }
 
   e.preventDefault();
+
   isDragging = true;
   moved = false;
 
@@ -821,46 +471,53 @@ center.addEventListener("pointerdown", function(e) {
 
   center.classList.remove("returning");
   center.setPointerCapture(e.pointerId);
+
+  if (!isOpen) {
+    openMenu();
+  }
 });
 
 center.addEventListener("pointermove", function(e) {
+
   if (!isDragging) return;
 
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  if (Math.hypot(dx, dy) > 6) {
+  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
     moved = true;
   }
 
   if (!moved) return;
 
-  // Ouvrir automatiquement les satellites si on commence à glisser
-  if (!isOpen) {
-    openMenu();
-  }
-
   const menuRect = menu.getBoundingClientRect();
+
   const size = center.offsetWidth;
   const height = center.offsetHeight;
 
   let x = initialX + dx;
   let y = initialY + dy;
 
-  // Limiter le déplacement à l'intérieur de la zone de menu
-  x = Math.max(0, Math.min(menuRect.width - size, x));
-  y = Math.max(0, Math.min(menuRect.height - height, y));
+  x = Math.max(
+    0,
+    Math.min(menuRect.width - size, x)
+  );
+
+  y = Math.max(
+    0,
+    Math.min(menuRect.height - height, y)
+  );
 
   center.style.left = x + "px";
   center.style.top = y + "px";
-  center.style.transform = "none";
 
-  // Mettre à jour la surbrillance du satellite sous le curseur
-  updateHighlight();
+  center.style.transform = "none";
 });
 
 center.addEventListener("pointerup", function(e) {
+
   if (!isDragging) return;
+
   isDragging = false;
 
   try {
@@ -868,16 +525,8 @@ center.addEventListener("pointerup", function(e) {
   } catch (err) {}
 
   if (moved) {
-    const target = getHoveredSatellite();
-    if (target) {
-      openPage(target.dataset.page);
-      resetCenter(false);
-    } else {
-      resetCenter(true);
-    }
+    selectSatellite();
   } else {
-    // Clic simple sans glissement : bascule ouverture / fermeture
-    toggleMenu();
     resetCenter(false);
   }
 });
@@ -890,7 +539,61 @@ center.addEventListener("pointercancel", function(e) {
   resetCenter(true);
 });
 
-center.setAttribute("aria-expanded", "false");
+function selectSatellite() {
+
+  const centerRect = center.getBoundingClientRect();
+
+  let selected = null;
+  let closestDistance = Infinity;
+
+  satellites.forEach(function(satellite) {
+
+    const satelliteRect = satellite.getBoundingClientRect();
+
+    const overlapX =
+      Math.min(centerRect.right, satelliteRect.right) -
+      Math.max(centerRect.left, satelliteRect.left);
+
+    const overlapY =
+      Math.min(centerRect.bottom, satelliteRect.bottom) -
+      Math.max(centerRect.top, satelliteRect.top);
+
+    if (overlapX > 0 && overlapY > 0) {
+
+      const centerX =
+        satelliteRect.left + satelliteRect.width / 2;
+
+      const centerY =
+        satelliteRect.top + satelliteRect.height / 2;
+
+      const distance = Math.hypot(
+        centerRect.left + centerRect.width / 2 - centerX,
+        centerRect.top + centerRect.height / 2 - centerY
+      );
+
+      if (distance < closestDistance) {
+        selected = satellite;
+        closestDistance = distance;
+      }
+    }
+  });
+
+  if (selected) {
+    openPage(selected.dataset.page);
+    resetCenter(false);
+  } else {
+    resetCenter(true);
+  }
+}
+
+center.addEventListener("click", function() {
+
+  if (moved) return;
+
+  toggleMenu();
+  resetCenter(false);
+
+});
 
 center.addEventListener("keydown", function (e) {
   if (e.key === "Enter" || e.key === " ") {
@@ -906,180 +609,37 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-// Clic direct sur les satellites
 satellites.forEach(function(satellite) {
+
   satellite.addEventListener("click", function(e) {
+
     e.stopPropagation();
+
     openPage(this.dataset.page);
+
   });
+
 });
 
-function openPage(page, query = "") {
-  pageTitle.textContent = page;
-  let desc = pages[page] || "";
-  if (query) {
-    desc += ` — Résultats filtrés pour : "${query}"`;
-  }
-  pageDescription.textContent = desc;
+function openPage(page) {
 
-  renderPageContent(page, query);
+  pageTitle.textContent = page;
+
+  pageDescription.textContent = pages[page];
 
   destination.classList.add("active");
+
   menu.style.display = "none";
   hint.style.display = "none";
-  searchResults.style.display = "none";
 
   pageTitle.setAttribute("tabindex", "-1");
   pageTitle.focus();
 }
 
-function renderPageContent(page, query = "") {
-  pageContent.replaceChildren();
-
-  if (page === "Documents") {
-    const list = document.createElement("div");
-    list.className = "doc-list";
-
-    let docsToShow = appDocs;
-    if (query) {
-      const q = normalize(query);
-      docsToShow = appDocs.filter(d => normalize(d.title).includes(q) || normalize(d.tag).includes(q));
-    }
-
-    if (docsToShow.length === 0) {
-      list.innerHTML = `<div style="color:var(--muted); text-align:center; padding:20px;">Aucun document ne correspond à "${query}".</div>`;
-    } else {
-      docsToShow.forEach(d => {
-        const item = document.createElement("div");
-        item.className = "doc-item";
-        item.innerHTML = `
-          <div>
-            <strong>${d.title}</strong>
-            <div style="font-size:12px; color:var(--muted); margin-top:3px;">Filière / Niveau</div>
-          </div>
-          <span class="tag" style="background:#ff3b9d15; color:var(--primary); padding:4px 8px; border-radius:8px; font-weight:700;">${d.tag}</span>
-        `;
-        list.appendChild(item);
-      });
-    }
-    pageContent.appendChild(list);
-  }
-  else if (page === "Publier") {
-    const form = document.createElement("div");
-    form.className = "publish-form";
-    form.innerHTML = `
-      <input type="text" id="newDocTitle" placeholder="Titre du document (ex: Fiche Révision Droit L1)" required>
-      <input type="text" id="newDocTag" placeholder="Niveau ou Matière (ex: L1 - Droit)" required>
-      <button type="button" id="publishDocBtn" class="submit-btn">Publier le document</button>
-      <div id="publishMsg" class="status-message"></div>
-    `;
-    pageContent.appendChild(form);
-
-    setTimeout(() => {
-      const btn = document.getElementById("publishDocBtn");
-      const titleInput = document.getElementById("newDocTitle");
-      const tagInput = document.getElementById("newDocTag");
-      const msg = document.getElementById("publishMsg");
-
-      btn.addEventListener("click", async () => {
-        const title = titleInput.value.trim();
-        const tag = tagInput.value.trim();
-
-        if (!title || !tag) {
-          msg.className = "status-message error";
-          msg.textContent = "Veuillez remplir le titre et le niveau.";
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Publication en cours...";
-
-        let insertedInCloud = false;
-        if (supabase) {
-          try {
-            const { error } = await supabase.from('documents').insert([{ title, tag }]);
-            if (!error) insertedInCloud = true;
-          } catch (e) {
-            console.warn("Supabase insert:", e);
-          }
-        }
-
-        // Ajout immédiat à la liste locale
-        appDocs.unshift({ title, tag });
-        titleInput.value = "";
-        tagInput.value = "";
-        btn.disabled = false;
-        btn.textContent = "Publier le document";
-
-        msg.className = "status-message success";
-        msg.textContent = insertedInCloud 
-          ? `✅ Document publié et synchronisé avec Supabase !`
-          : `✅ Document publié dans votre catalogue local !`;
-      });
-    }, 50);
-  }
-  else if (page === "Téléchargements") {
-    const list = document.createElement("div");
-    list.className = "doc-list";
-    const downloaded = [
-      { title: "Introduction générale au droit L1", date: "Hier à 16:30", size: "2.4 Mo (PDF)" },
-      { title: "Fiche Algèbre linéaire & Matrices", date: "Il y a 3 jours", size: "1.1 Mo (PDF)" }
-    ];
-    downloaded.forEach(d => {
-      const item = document.createElement("div");
-      item.className = "doc-item";
-      item.innerHTML = `
-        <div>
-          <strong>${d.title}</strong>
-          <div style="font-size:12px; color:var(--muted); margin-top:3px;">${d.date} • ${d.size}</div>
-        </div>
-        <button type="button" style="background:var(--primary); color:white; border:none; padding:6px 12px; border-radius:8px; font-weight:600; cursor:pointer;" onclick="alert('Téléchargement du fichier lancé !')">Ouvrir</button>
-      `;
-      list.appendChild(item);
-    });
-    pageContent.appendChild(list);
-  }
-  else if (page === "Profil") {
-    const card = document.createElement("div");
-    card.innerHTML = `
-      <div style="padding:15px; background:var(--background); border:1px solid var(--border); border-radius:14px; margin-bottom:15px;">
-        <div style="font-size:18px; font-weight:700;">Glenn</div>
-        <div style="color:var(--muted); font-size:13px; margin-top:2px;">Étudiant • Membre SIA Premium</div>
-        <div style="margin-top:12px; display:flex; gap:10px;">
-          <div style="flex:1; background:var(--card); padding:10px; border-radius:10px; text-align:center;">
-            <div style="font-size:18px; font-weight:800; color:var(--primary);">${appDocs.length}</div>
-            <div style="font-size:11px; color:var(--muted);">Documents</div>
-          </div>
-          <div style="flex:1; background:var(--card); padding:10px; border-radius:10px; text-align:center;">
-            <div style="font-size:18px; font-weight:800; color:var(--secondary);">2</div>
-            <div style="font-size:11px; color:var(--muted);">Achats</div>
-          </div>
-        </div>
-      </div>
-      <div style="padding:12px 15px; background:var(--background); border:1px solid var(--border); border-radius:14px; font-size:13px;">
-        <strong>Base de données Cloud :</strong>
-        <div style="color:var(--muted); margin-top:4px; font-family:monospace; font-size:11px;">https://jlqmdiaeahjlbwcjlruo.supabase.co</div>
-      </div>
-    `;
-    pageContent.appendChild(card);
-  }
-  else if (page === "Recherche") {
-    const pills = document.createElement("div");
-    pills.style.cssText = "display:flex; flex-wrap:wrap; gap:8px; margin-bottom:15px;";
-    ["Tous", "Mathématiques", "Droit", "Économie", "Informatique", "Physique"].forEach(cat => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.textContent = cat;
-      btn.style.cssText = "padding:6px 12px; border:1px solid var(--border); background:var(--background); border-radius:20px; font-size:12px; cursor:pointer; font-weight:600; color:var(--text);";
-      btn.onclick = () => openPage("Documents", cat === "Tous" ? "" : cat);
-      pills.appendChild(btn);
-    });
-    pageContent.appendChild(pills);
-  }
-}
-
 function closePage() {
+
   destination.classList.remove("active");
+
   menu.style.display = "";
   hint.style.display = "";
 
@@ -1088,106 +648,6 @@ function closePage() {
   center.focus();
 }
 
-function normalize(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function debounce(fn, delay = 200) {
-  let timer;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
-  };
-}
-
-function renderResults(matches, rawValue) {
-  searchResults.replaceChildren();
-
-  if (matches.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "search-result-item";
-    empty.style.color = "var(--muted)";
-    empty.style.cursor = "default";
-    empty.textContent = `Aucun document trouvé pour "${rawValue}"`;
-    searchResults.appendChild(empty);
-    searchResults.style.display = "block";
-    return;
-  }
-
-  matches.forEach(d => {
-    const item = document.createElement("div");
-    item.className = "search-result-item";
-    item.setAttribute("role", "option");
-    item.tabIndex = 0;
-
-    const title = document.createElement("span");
-    title.textContent = d.title;
-
-    const tag = document.createElement("span");
-    tag.className = "tag";
-    tag.textContent = d.tag;
-
-    item.append(title, tag);
-
-    const choose = () => {
-      openPage("Documents", d.title);
-      searchResults.style.display = "none";
-    };
-    item.addEventListener("click", choose);
-    item.addEventListener("keydown", e => {
-      if (e.key === "Enter") choose();
-    });
-
-    searchResults.appendChild(item);
-  });
-
-  searchResults.style.display = "block";
-}
-
-const runSearch = debounce(function () {
-  const raw = searchInput.value.trim();
-  const val = normalize(raw);
-
-  if (val.length === 0) {
-    searchClear.style.display = "none";
-    searchResults.style.display = "none";
-    return;
-  }
-
-  searchClear.style.display = "block";
-
-  const matches = appDocs.filter(d =>
-    normalize(d.title).includes(val) || normalize(d.tag).includes(val)
-  );
-
-  renderResults(matches, raw);
-});
-
-searchInput.addEventListener("input", runSearch);
-
-searchClear.addEventListener("click", function() {
-  searchInput.value = "";
-  this.style.display = "none";
-  searchResults.style.display = "none";
-  searchInput.focus();
-});
-
-searchInput.addEventListener("keydown", function(e) {
-  if (e.key === "Enter" && this.value.trim().length > 0) {
-    openPage("Recherche", this.value.trim());
-    searchResults.style.display = "none";
-  }
-});
-
-// Fermer les résultats si clic extérieur
-document.addEventListener("click", function(e) {
-  if (!e.target.closest(".search-container")) {
-    searchResults.style.display = "none";
-  }
-});
 </script>
 
 </body>
