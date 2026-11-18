@@ -735,14 +735,19 @@ header {
   <!-- HEADER -->
   <header>
     <div class="logo">SIA.</div>
-    <div class="user-badge" id="userBadge" onclick="openPage('Profil')">
+    <div class="user-badge" id="userBadge" onclick="handleBadgeClick()">
       <span class="avatar-icon">👤</span>
       <span class="user-name" id="badgeName">Connexion</span>
     </div>
   </header>
 
-  <!-- AUTHENTICATION VIEW (Si non connecté) -->
+  <!-- AUTHENTICATION VIEW (Modale ou panneau de connexion) -->
   <div class="auth-container" id="authContainer">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3 style="margin: 0; font-size: 17px; font-weight: 700;">Compte SIA</h3>
+      <button type="button" onclick="showHomeViewGuest()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); padding: 4px 8px;" aria-label="Fermer">✕</button>
+    </div>
+
     <div class="auth-logo">
       <h2>Bienvenue sur SIA</h2>
       <p>L'espace numérique de ta filière et de tes cours</p>
@@ -782,11 +787,15 @@ header {
 
       <button class="btn-submit" type="submit" id="btnSubmitAuth">Se connecter</button>
       <div class="feedback-msg" id="authFeedback"></div>
+
+      <button type="button" onclick="showHomeViewGuest()" style="margin-top: 14px; width: 100%; background: transparent; border: 1px solid var(--card-border); color: var(--muted); border-radius: var(--radius-sm); padding: 12px; font-weight: 600; cursor: pointer;">
+        ← Continuer sans compte / Retour au menu
+      </button>
     </form>
   </div>
 
-  <!-- HOME INTERFACE (Si connecté) -->
-  <div id="homeInterface" style="display: none;">
+  <!-- HOME INTERFACE (Toujours affiché par défaut) -->
+  <div id="homeInterface">
 
     <div class="hero">
       <h1 id="heroGreeting">Salut, <span>Étudiant</span> 👋</h1>
@@ -799,7 +808,7 @@ header {
     </div>
 
     <!-- MENU CIRCULAIRE À 6 SATELLITES -->
-    <div class="menu" id="menu">
+    <div class="menu open" id="menu">
       <div class="orbit"></div>
 
       <!-- 6 Satellites : Profil, Cours, TD, Notes, Caméra, Audio -->
@@ -945,37 +954,85 @@ let availableFilieres = [];
    INITIALISATION ET GESTION DE SESSION
    ========================================================================== */
 async function initApp() {
-  populateFiliereSelect();
+  try {
+    populateFiliereSelect();
+  } catch (err) {
+    console.warn("Erreur populateFiliereSelect :", err);
+  }
 
+  // 1. Toujours afficher immédiatement l'univers étudiant (aucun écran blanc possible)
+  showHomeViewGuest();
+
+  // 2. Si le SDK Supabase n'est pas encore disponible
   if (!supabase) {
-    console.error("Client Supabase non initialisé.");
-    showAuthView();
+    console.log("Supabase non initialisé ou hors-ligne : fonctionnement en mode Invité.");
     return;
   }
 
-  // Vérifier la session actuelle
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session && session.user) {
-    currentUser = session.user;
-    await checkProfile(currentUser);
+  // 3. Vérifier en toute sécurité si une session existe
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (!error && data && data.session && data.session.user) {
+      currentUser = data.session.user;
+      await checkProfile(currentUser);
+    }
+  } catch (err) {
+    console.warn("Session Supabase non récupérée :", err);
+  }
+
+  // 4. Écouter les changements d'état d'authentification
+  try {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session && session.user) {
+        currentUser = session.user;
+        await checkProfile(currentUser);
+      } else {
+        currentUser = null;
+        currentProfile = null;
+        showHomeViewGuest();
+      }
+    });
+  } catch (err) {
+    console.warn("Écouteur d'authentification non initialisé :", err);
+  }
+
+  // 5. Charger les filières dynamiques en arrière-plan
+  try {
+    loadFilieresFromDB();
+  } catch (err) {
+    console.warn("Chargement des filières en arrière-plan ignoré :", err);
+  }
+}
+
+function handleBadgeClick() {
+  if (currentUser) {
+    openPage('Profil');
   } else {
     showAuthView();
   }
+}
 
-  // Écouter les changements d'état d'authentification
-  supabase.auth.onAuthStateChange(async (event, session) => {
-    if (session && session.user) {
-      currentUser = session.user;
-      await checkProfile(currentUser);
-    } else {
-      currentUser = null;
-      currentProfile = null;
-      showAuthView();
-    }
-  });
+function showHomeViewGuest() {
+  const authContainer = document.getElementById("authContainer");
+  const homeInterface = document.getElementById("homeInterface");
+  const destination = document.getElementById("destination");
 
-  // Charger les filières dynamiques depuis Supabase
-  loadFilieresFromDB();
+  if (authContainer) authContainer.classList.remove("active");
+  if (homeInterface) homeInterface.style.display = "block";
+  if (destination) destination.classList.remove("active");
+  hideOnboarding();
+
+  const badgeName = document.getElementById("badgeName");
+  if (badgeName) badgeName.textContent = "Connexion";
+
+  const heroGreeting = document.getElementById("heroGreeting");
+  if (heroGreeting) heroGreeting.innerHTML = `Salut, <span>Étudiant</span> 👋`;
+
+  const heroSubtitle = document.getElementById("heroSubtitle");
+  if (heroSubtitle) heroSubtitle.textContent = "Accède aux cours et ressources de ta filière";
+
+  if (typeof resetCenter === "function") resetCenter(false);
+  if (typeof openMenu === "function") openMenu();
 }
 
 async function loadFilieresFromDB() {
@@ -1509,20 +1566,32 @@ function openPage(page) {
 
 function closePage() {
   const destination = document.getElementById("destination");
-  destination.classList.remove("active");
+  if (destination) destination.classList.remove("active");
 
-  if (currentUser) {
-    document.getElementById("homeInterface").style.display = "block";
-    resetCenter(false);
-    openMenu();
-  } else {
-    showAuthView();
-  }
+  const authContainer = document.getElementById("authContainer");
+  if (authContainer) authContainer.classList.remove("active");
+
+  const homeInterface = document.getElementById("homeInterface");
+  if (homeInterface) homeInterface.style.display = "block";
+
+  if (typeof resetCenter === "function") resetCenter(false);
+  if (typeof openMenu === "function") openMenu();
 }
 
 function renderProfilePage(container) {
-  if (!currentProfile) {
-    container.innerHTML = `<p class="desc">Profil non disponible.</p>`;
+  if (!currentUser || !currentProfile) {
+    container.innerHTML = `
+      <div class="profile-card" style="text-align: center; padding: 25px 15px;">
+        <div style="font-size: 44px; margin-bottom: 12px;">👤</div>
+        <h3 style="margin-bottom: 8px;">Compte Étudiant</h3>
+        <p class="desc" style="margin-bottom: 22px; font-size: 14px; color: var(--muted); line-height: 1.5;">
+          Connecte-toi pour accéder à tes cours personnalisés, enregistrer ta filière et synchroniser tes notes.
+        </p>
+        <button class="btn-submit" onclick="showAuthView()" style="margin-bottom: 10px;">
+          🔐 Se connecter ou s'inscrire
+        </button>
+      </div>
+    `;
     return;
   }
 
