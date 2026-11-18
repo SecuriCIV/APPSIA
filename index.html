@@ -2,131 +2,186 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SIA — Menu circulaire</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>SIA — L'univers étudiant</title>
+
+<!-- Supabase JS Client v2 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
   --primary: #ff3b9d;
+  --primary-hover: #e02885;
   --secondary: #a855f7;
+  --secondary-hover: #9333ea;
   --background: #fff7fc;
   --text: #29152f;
   --card: #ffffff;
+  --card-border: #f3ddeb;
   --muted: #99899d;
+  --input-bg: #fff1f9;
+  --shadow: 0 8px 30px rgba(168, 85, 247, 0.1);
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
 }
 
 body {
-  margin: 0;
   min-height: 100vh;
   background: var(--background);
   color: var(--text);
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
-}
-
-button:focus-visible {
-  outline: 3px solid var(--secondary);
-  outline-offset: 3px;
+  display: flex;
+  justify-content: center;
 }
 
 .app {
   width: 100%;
   max-width: 480px;
   min-height: 100vh;
-  margin: auto;
-  padding: 25px 20px;
+  padding: 24px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
 header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
 }
 
 .logo {
-  font-size: 30px;
+  font-size: 28px;
   font-weight: 900;
-  color: var(--primary);
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.avatar {
-  font-size: 24px;
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  padding: 6px 14px;
+  border-radius: 30px;
   cursor: pointer;
-  background: none;
-  border: none;
-  padding: 4px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
   transition: transform .2s ease;
 }
 
-.avatar:hover {
-  transform: scale(1.1);
+.user-badge:hover {
+  transform: scale(1.03);
 }
 
-h1 {
-  margin-top: 35px;
-  font-size: 27px;
+.user-badge .avatar-icon {
+  font-size: 18px;
 }
 
-h1 span {
+.user-badge .user-name {
+  font-size: 13px;
+  font-weight: 600;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   WELCOME HERO
+   ========================================================================== */
+.hero {
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.hero h1 span {
   color: var(--primary);
 }
 
-.subtitle {
+.hero .meta {
   color: var(--muted);
   font-size: 14px;
+  margin-top: 6px;
 }
 
-.search {
-  margin-top: 25px;
-  padding: 17px;
+.search-bar {
+  margin: 18px 0 10px;
+  padding: 14px 18px;
   background: var(--card);
-  border-radius: 16px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
   color: var(--muted);
-  box-shadow: 0 5px 20px #00000008;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  cursor: pointer;
 }
 
+/* ==========================================================================
+   ORBITAL MENU (6 SATELLITES)
+   ========================================================================== */
 .menu {
   position: relative;
   width: 100%;
-  height: 360px;
-  margin-top: 25px;
-  overflow: hidden;
+  height: 380px;
+  margin: 10px auto;
+  overflow: visible;
   touch-action: pan-y;
+  user-select: none;
 }
 
 .orbit {
   position: absolute;
-  width: 280px;
-  height: 280px;
+  width: 250px;
+  height: 250px;
   left: 50%;
-  top: 35px;
-  transform: translateX(-50%);
-  border: 1px dashed #e8c9df;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 1.5px dashed rgba(168, 85, 247, 0.28);
   border-radius: 50%;
   pointer-events: none;
 }
 
 .satellite {
   position: absolute;
-  width: 76px;
-  height: 76px;
-  border: none;
+  width: 72px;
+  height: 72px;
+  border: 2px solid transparent;
   border-radius: 50%;
   background: var(--card);
   color: var(--text);
-  box-shadow: 0 8px 25px #6e235015;
+  box-shadow: 0 8px 25px rgba(110, 35, 80, 0.08);
 
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  gap: 3px;
 
   font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
 
   opacity: 0;
@@ -135,84 +190,57 @@ h1 span {
 
   transition:
     opacity .25s ease,
-    transform .35s cubic-bezier(.2,.8,.2,1);
+    transform .35s cubic-bezier(.2,.8,.2,1),
+    border-color .2s ease,
+    box-shadow .2s ease,
+    color .2s ease;
 
   z-index: 2;
 }
 
-.s1 {
-  left: 50%;
-  top: 0;
-  transform: translate(-50%, 45px) scale(.4);
-}
+/* Base collapsed positions (center scale 0.3) */
+.s1 { left: 50%; top: calc(50% - 125px); transform: translate(-50%, -50%) scale(0.3); }
+.s2 { left: calc(50% + 108px); top: calc(50% - 63px); transform: translate(-50%, -50%) scale(0.3); }
+.s3 { left: calc(50% + 108px); top: calc(50% + 63px); transform: translate(-50%, -50%) scale(0.3); }
+.s4 { left: 50%; top: calc(50% + 125px); transform: translate(-50%, -50%) scale(0.3); }
+.s5 { left: calc(50% - 108px); top: calc(50% + 63px); transform: translate(-50%, -50%) scale(0.3); }
+.s6 { left: calc(50% - 108px); top: calc(50% - 63px); transform: translate(-50%, -50%) scale(0.3); }
 
-.s2 {
-  right: 0;
-  top: 85px;
-  transform: translate(-35px, 20px) scale(.4);
-}
-
-.s3 {
-  right: 0;
-  bottom: 20px;
-  transform: translate(-35px, -20px) scale(.4);
-}
-
-.s4 {
-  left: 0;
-  bottom: 20px;
-  transform: translate(35px, -20px) scale(.4);
-}
-
-.s5 {
-  left: 0;
-  top: 85px;
-  transform: translate(35px, 20px) scale(.4);
-}
-
+/* Expanded states when menu is open */
 .menu.open .satellite {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
 }
 
-.menu.open .s1 {
-  transform: translate(-50%, 0) scale(1);
-}
-
-.menu.open .s2,
-.menu.open .s3,
-.menu.open .s4,
-.menu.open .s5 {
-  transform: translate(0, 0) scale(1);
+/* Satellite illuminated and magnified when targeted by the central button */
+.satellite.targeted {
+  transform: translate(-50%, -50%) scale(1.22) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  box-shadow: 0 0 25px rgba(255, 59, 157, 0.65), 0 8px 30px rgba(0,0,0,0.12) !important;
 }
 
 .satellite .icon {
-  font-size: 25px;
+  font-size: 24px;
 }
 
+/* Center button (SIA) */
 .center {
   position: absolute;
-  width: 130px;
-  height: 130px;
-
+  width: 120px;
+  height: 120px;
   left: 50%;
   top: 50%;
-
   transform: translate(-50%, -50%);
 
-  border: 5px solid white;
+  border: 4px solid white;
   border-radius: 50%;
-
-  background: linear-gradient(
-    145deg,
-    #ff4da6,
-    #a855f7
-  );
-
+  background: linear-gradient(135deg, #ff4da6, #a855f7);
   color: white;
 
-  box-shadow: 0 15px 40px #e63c9e50;
+  box-shadow: 0 12px 35px rgba(230, 60, 158, 0.45);
 
   display: flex;
   flex-direction: column;
@@ -222,7 +250,6 @@ h1 span {
   cursor: grab;
   touch-action: none;
   user-select: none;
-
   z-index: 5;
 }
 
@@ -238,63 +265,464 @@ h1 span {
 }
 
 .center .icon {
-  font-size: 35px;
+  font-size: 30px;
+  line-height: 1;
 }
 
 .center strong {
-  margin-top: 5px;
-  font-size: 16px;
+  margin-top: 3px;
+  font-size: 15px;
+  letter-spacing: 0.5px;
 }
 
 .center small {
-  margin-top: 4px;
-  font-size: 10px;
-  opacity: .85;
+  margin-top: 2px;
+  font-size: 9px;
+  opacity: .9;
 }
 
 .hint {
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
+  margin-top: 10px;
+  min-height: 20px;
 }
 
+/* ==========================================================================
+   DESTINATION DETAIL VIEW
+   ========================================================================== */
 .destination {
   display: none;
-  margin-top: 25px;
-  padding: 25px;
+  margin-top: 10px;
+  padding: 24px;
   background: var(--card);
-  border-radius: 20px;
-  box-shadow: 0 5px 20px #00000008;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: fadeIn .3s ease;
 }
 
 .destination.active {
   display: block;
 }
 
-.destination button {
-  padding: 12px 20px;
+.destination-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.destination-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-back {
+  padding: 8px 16px;
   border: none;
+  border-radius: 20px;
+  background: var(--input-bg);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.btn-back:hover {
+  background: #ffe3f2;
+}
+
+/* ==========================================================================
+   AUTHENTICATION VIEW & ONBOARDING MODAL
+   ========================================================================== */
+.auth-container {
+  display: none;
+  padding: 30px 24px;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  animation: fadeIn .3s ease;
+  margin: 20px 0;
+}
+
+.auth-container.active {
+  display: block;
+}
+
+.auth-logo {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo h2 {
+  font-size: 32px;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-logo p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.btn-google {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--card-border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.btn-google:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 22px 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.auth-divider span {
+  padding: 0 12px;
+}
+
+.auth-tabs {
+  display: flex;
+  background: var(--input-bg);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 9px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
   border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  transition: all .2s;
+}
+
+.auth-tab.active {
+  background: var(--card);
+  color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 13px 15px;
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+  font-family: inherit;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--primary);
+  background: var(--card);
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  margin-top: 8px;
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(255, 59, 157, 0.35);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.feedback-msg {
+  padding: 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  margin-top: 14px;
+  display: none;
+}
+
+.feedback-msg.error {
+  display: block;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.feedback-msg.success {
+  display: block;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+/* ==========================================================================
+   MODAL ONBOARDING OBLIGATOIRE (PROFIL INCOMPLET)
+   ========================================================================== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(21, 16, 27, 0.7);
+  backdrop-filter: blur(6px);
+  z-index: 100;
+  padding: 20px;
+  overflow-y: auto;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 28px 22px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+  animation: slideUp .3s ease;
+}
+
+.modal-card h3 {
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 6px;
+  color: var(--primary);
+}
+
+.modal-card p.desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.level-selector {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.level-btn {
+  padding: 10px 0;
+  border: 1.5px solid var(--card-border);
+  background: var(--input-bg);
+  color: var(--text);
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+
+.level-btn.selected {
   background: var(--primary);
   color: white;
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(255, 59, 157, 0.3);
+}
+
+.custom-filiere-box {
+  margin-top: 10px;
+  display: none;
+}
+
+.custom-filiere-box.active {
+  display: block;
+}
+
+/* ==========================================================================
+   PROFIL VIEW STYLES
+   ========================================================================== */
+.profile-card {
+  background: var(--input-bg);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.profile-field {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--card-border);
+  font-size: 14px;
+}
+
+.profile-field:last-child {
+  border-bottom: none;
+}
+
+.profile-field .label {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.profile-field .value {
+  font-weight: 700;
+  color: var(--text);
+  text-align: right;
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
+  margin-bottom: 10px;
+  transition: background .2s;
+}
+
+.btn-secondary:hover {
+  background: var(--input-bg);
+}
+
+.btn-logout {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid #fecaca;
+  border-radius: var(--radius-md);
+  background: #fff1f2;
+  color: #e11d48;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.btn-logout:hover {
+  background: #ffe4e6;
+}
+
+/* ==========================================================================
+   ANIMATIONS & RESPONSIVE
+   ========================================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 360px) {
-  .menu { transform: scale(.88); transform-origin: top center; height: 330px; }
-  .logo { font-size: 26px; }
+  .menu { transform: scale(.88); transform-origin: top center; height: 340px; }
+  .logo { font-size: 24px; }
+  .satellite { width: 66px; height: 66px; font-size: 10px; }
+  .satellite .icon { font-size: 20px; }
+  .center { width: 110px; height: 110px; }
 }
 
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #15101b;
     --text: #f8eefa;
     --card: #241b2d;
+    --card-border: #3b2b48;
     --muted: #b5a4bc;
+    --input-bg: #1c1524;
+    --shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
   }
 
   .orbit {
-    border-color: #51304e;
+    border-color: rgba(168, 85, 247, 0.35);
+  }
+
+  .btn-google {
+    background: #1c1524;
+    color: #f8eefa;
+    border-color: var(--card-border);
+  }
+
+  .btn-back {
+    background: #2e1d35;
+    color: var(--primary);
+  }
+
+  .btn-logout {
+    background: #3b1824;
+    border-color: #5c2336;
+    color: #fda4af;
   }
 }
 </style>
@@ -304,138 +732,611 @@ h1 span {
 
 <div class="app">
 
+  <!-- HEADER -->
   <header>
     <div class="logo">SIA.</div>
-    <button class="avatar" title="Mon compte" aria-label="Mon compte" onclick="openPage('Profil')">👤</button>
+    <div class="user-badge" id="userBadge" onclick="openPage('Profil')">
+      <span class="avatar-icon">👤</span>
+      <span class="user-name" id="badgeName">Connexion</span>
+    </div>
   </header>
 
-  <h1>Salut, <span>Glenn</span> 👋</h1>
+  <!-- AUTHENTICATION VIEW (Si non connecté) -->
+  <div class="auth-container" id="authContainer">
+    <div class="auth-logo">
+      <h2>Bienvenue sur SIA</h2>
+      <p>L'espace numérique de ta filière et de tes cours</p>
+    </div>
 
-  <p class="subtitle">
-    Bienvenue dans ton univers étudiant.
-  </p>
+    <!-- Connexion Google -->
+    <button class="btn-google" id="btnGoogleAuth" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+      </svg>
+      Continuer avec Google
+    </button>
 
-  <div class="search" onclick="openPage('Recherche')" style="cursor: pointer;">
-    🔎 Rechercher un document...
+    <div class="auth-divider">
+      <span>ou avec votre email</span>
+    </div>
+
+    <!-- Bascule Connexion / Inscription -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" type="button">Connexion</button>
+      <button class="auth-tab" id="tabRegister" type="button">Inscription</button>
+    </div>
+
+    <form id="authForm" onsubmit="handleAuthSubmit(event)">
+      <div class="form-group">
+        <label for="authEmail">Email</label>
+        <input class="form-input" type="email" id="authEmail" placeholder="etudiant@universite.ga" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="authPassword">Mot de passe</label>
+        <input class="form-input" type="password" id="authPassword" placeholder="Au moins 6 caractères" required minlength="6" autocomplete="current-password">
+      </div>
+
+      <button class="btn-submit" type="submit" id="btnSubmitAuth">Se connecter</button>
+      <div class="feedback-msg" id="authFeedback"></div>
+    </form>
   </div>
 
-  <div class="menu" id="menu">
+  <!-- HOME INTERFACE (Si connecté) -->
+  <div id="homeInterface" style="display: none;">
 
-    <div class="orbit"></div>
+    <div class="hero">
+      <h1 id="heroGreeting">Salut, <span>Étudiant</span> 👋</h1>
+      <p class="meta" id="heroSubtitle">Accède aux cours et ressources de ta filière</p>
 
-    <button class="satellite s1" data-page="Recherche">
-      <span class="icon">🔍</span>
-      Recherche
-    </button>
+      <div class="search-bar" onclick="openPage('Cours')">
+        <span>🔎</span>
+        <span>Rechercher un cours, un TD, une note...</span>
+      </div>
+    </div>
 
-    <button class="satellite s2" data-page="Documents">
-      <span class="icon">📚</span>
-      Documents
-    </button>
+    <!-- MENU CIRCULAIRE À 6 SATELLITES -->
+    <div class="menu" id="menu">
+      <div class="orbit"></div>
 
-    <button class="satellite s3" data-page="Téléchargements">
-      <span class="icon">⬇️</span>
-      Fichiers
-    </button>
+      <!-- 6 Satellites : Profil, Cours, TD, Notes, Caméra, Audio -->
+      <button class="satellite s1" data-page="Profil" aria-label="Profil">
+        <span class="icon">👤</span>
+        Profil
+      </button>
 
-    <button class="satellite s4" data-page="Publier">
-      <span class="icon">➕</span>
-      Publier
-    </button>
+      <button class="satellite s2" data-page="Cours" aria-label="Cours">
+        <span class="icon">📚</span>
+        Cours
+      </button>
 
-    <button class="satellite s5" data-page="Profil">
-      <span class="icon">👤</span>
-      Profil
-    </button>
+      <button class="satellite s3" data-page="TD" aria-label="Travaux Dirigés">
+        <span class="icon">📝</span>
+        TD
+      </button>
 
-    <button class="center" id="center" aria-label="Menu principal SIA" aria-expanded="false">
-      <span class="icon">✦</span>
-      <strong>SIA</strong>
-      <small>Toucher pour explorer</small>
-    </button>
+      <button class="satellite s4" data-page="Notes" aria-label="Notes">
+        <span class="icon">🗒️</span>
+        Notes
+      </button>
+
+      <button class="satellite s5" data-page="Caméra" aria-label="Caméra">
+        <span class="icon">📷</span>
+        Caméra
+      </button>
+
+      <button class="satellite s6" data-page="Audio" aria-label="Audio">
+        <span class="icon">🎙️</span>
+        Audio
+      </button>
+
+      <!-- Bouton central glissable SIA -->
+      <button class="center" id="center" aria-label="Menu principal SIA" aria-expanded="false">
+        <span class="icon">✦</span>
+        <strong>SIA</strong>
+        <small>Glisser ou toucher</small>
+      </button>
+    </div>
+
+    <p class="hint" id="hint">
+      Touche ou glisse le bouton central vers un satellite.
+    </p>
 
   </div>
 
-  <p class="hint" id="hint">
-    Touche le bouton central pour afficher les satellites.
-  </p>
-
+  <!-- PANNEAUX DE DESTINATION -->
   <section class="destination" id="destination">
+    <div class="destination-header">
+      <h2 id="pageTitle">Page</h2>
+      <button class="btn-back" onclick="closePage()">← Retour</button>
+    </div>
 
-    <h2 id="pageTitle"></h2>
-
-    <p id="pageDescription"></p>
-
-    <button onclick="closePage()">
-      Retour
-    </button>
-
+    <!-- Contenu dynamique de la page -->
+    <div id="pageContent"></div>
   </section>
 
 </div>
 
+<!-- ==========================================================================
+     MODAL OBLIGATOIRE DE PREMIER PROFIL (ONBOARDING)
+     ========================================================================== -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Complète ton profil</h3>
+    <p class="desc" id="modalDesc">Pour t'afficher uniquement les cours et devoirs de ta filière, renseigne ces quelques informations.</p>
+
+    <form id="onboardingForm" onsubmit="saveProfile(event)">
+      <div class="form-group">
+        <label for="profNom">Nom complet</label>
+        <input class="form-input" type="text" id="profNom" placeholder="Ex: Jean Mba" required>
+      </div>
+
+      <div class="form-group">
+        <label for="profUniversite">Université ou Institut</label>
+        <input class="form-input" type="text" id="profUniversite" placeholder="Ex: IST Libreville, UOB, USTM..." required>
+      </div>
+
+      <div class="form-group">
+        <label>Niveau d'études</label>
+        <div class="level-selector">
+          <button type="button" class="level-btn" data-level="L1" onclick="selectLevel('L1')">L1</button>
+          <button type="button" class="level-btn" data-level="L2" onclick="selectLevel('L2')">L2</button>
+          <button type="button" class="level-btn" data-level="L3" onclick="selectLevel('L3')">L3</button>
+          <button type="button" class="level-btn" data-level="Master" onclick="selectLevel('Master')">Master</button>
+        </div>
+        <input type="hidden" id="profNiveau" required>
+      </div>
+
+      <div class="form-group">
+        <label for="profFiliere">Filière</label>
+        <select class="form-select" id="profFiliere" onchange="handleFiliereChange()" required>
+          <option value="" disabled selected>Choisis ta filière...</option>
+          <optgroup label="Pôle Technologie" id="optgroupTech"></optgroup>
+          <optgroup label="Pôle Management" id="optgroupMgmt"></optgroup>
+          <optgroup label="Autres" id="optgroupOther">
+            <option value="AUTRE">➕ Autre (saisir ma filière)...</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <!-- Champ dynamique si choix "Autre" -->
+      <div class="form-group custom-filiere-box" id="customFiliereBox">
+        <label for="profCustomFiliere">Précise l'intitulé de ta filière</label>
+        <input class="form-input" type="text" id="profCustomFiliere" placeholder="Ex: Télécoms & Multimédia (fautes acceptées)">
+      </div>
+
+      <button class="btn-submit" type="submit" id="btnSaveProfile">Valider et continuer</button>
+      <div class="feedback-msg" id="profileFeedback"></div>
+    </form>
+  </div>
+</div>
+
 <script>
+/* ==========================================================================
+   CONFIGURATION SUPABASE
+   ========================================================================== */
+const SUPABASE_URL = "https://vpmedcmjmdsggcllmflg.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_SQj3E72IYY93-mrqH5DtUQ__gg655tm";
+const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+/* Filières par défaut (pour affichage immédiat même avant exécution SQL) */
+const DEFAULT_TECH = [
+  "Informatique", "Génie logiciel", "Réseaux et télécommunications",
+  "Systèmes d'information", "Intelligence artificielle", "Cybersécurité",
+  "Électronique", "Génie civil", "Génie électrique",
+  "Génie mécanique", "Maintenance industrielle", "Mathématiques-informatique"
+];
+
+const DEFAULT_MGMT = [
+  "Gestion", "Comptabilité et finance", "Marketing et communication",
+  "Commerce international", "Ressources humaines", "Banque et assurance",
+  "Logistique et transport", "Entrepreneuriat", "Administration des affaires",
+  "Droit des affaires", "Secrétariat de direction", "Management de projet"
+];
+
+let currentUser = null;
+let currentProfile = null;
+let availableFilieres = [];
+
+/* ==========================================================================
+   INITIALISATION ET GESTION DE SESSION
+   ========================================================================== */
+async function initApp() {
+  populateFiliereSelect();
+
+  if (!supabase) {
+    console.error("Client Supabase non initialisé.");
+    showAuthView();
+    return;
+  }
+
+  // Vérifier la session actuelle
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session && session.user) {
+    currentUser = session.user;
+    await checkProfile(currentUser);
+  } else {
+    showAuthView();
+  }
+
+  // Écouter les changements d'état d'authentification
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    if (session && session.user) {
+      currentUser = session.user;
+      await checkProfile(currentUser);
+    } else {
+      currentUser = null;
+      currentProfile = null;
+      showAuthView();
+    }
+  });
+
+  // Charger les filières dynamiques depuis Supabase
+  loadFilieresFromDB();
+}
+
+async function loadFilieresFromDB() {
+  if (!supabase) return;
+  try {
+    const { data, error } = await supabase.from('filieres').select('nom, pole');
+    if (!error && data && data.length > 0) {
+      availableFilieres = data;
+      populateFiliereSelect(data);
+    }
+  } catch (err) {
+    console.warn("Table filieres non disponible, utilisation des filières locales :", err);
+  }
+}
+
+function populateFiliereSelect(customList = null) {
+  const optTech = document.getElementById("optgroupTech");
+  const optMgmt = document.getElementById("optgroupMgmt");
+  const optOther = document.getElementById("optgroupOther");
+
+  optTech.innerHTML = "";
+  optMgmt.innerHTML = "";
+
+  const techList = customList ? customList.filter(f => f.pole === 'technologie').map(f => f.nom) : DEFAULT_TECH;
+  const mgmtList = customList ? customList.filter(f => f.pole === 'management').map(f => f.nom) : DEFAULT_MGMT;
+  const otherList = customList ? customList.filter(f => f.pole === 'autre').map(f => f.nom) : [];
+
+  techList.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    optTech.appendChild(opt);
+  });
+
+  mgmtList.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    optMgmt.appendChild(opt);
+  });
+
+  // Nettoyer les anciennes options "autre" custom
+  const existingOther = optOther.querySelectorAll("option:not([value='AUTRE'])");
+  existingOther.forEach(el => el.remove());
+
+  otherList.forEach(name => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    optOther.insertBefore(opt, optOther.firstChild);
+  });
+}
+
+/* ==========================================================================
+   GESTION DU PROFIL ET ONBOARDING
+   ========================================================================== */
+async function checkProfile(user) {
+  let profile = null;
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!error && data) {
+      profile = data;
+    }
+  } catch (e) {
+    console.warn("Erreur lecture profil :", e);
+  }
+
+  currentProfile = profile;
+
+  // Si le profil n'a pas encore de nom, filière ou niveau => Onboarding obligatoire !
+  const isComplete = profile && profile.nom && profile.filiere && profile.niveau && profile.universite;
+
+  if (!isComplete) {
+    showOnboarding(user, profile);
+  } else {
+    hideOnboarding();
+    showHomeView(profile);
+  }
+}
+
+function showAuthView() {
+  document.getElementById("authContainer").classList.add("active");
+  document.getElementById("homeInterface").style.display = "none";
+  document.getElementById("destination").classList.remove("active");
+  hideOnboarding();
+  document.getElementById("badgeName").textContent = "Connexion";
+}
+
+function showHomeView(profile) {
+  document.getElementById("authContainer").classList.remove("active");
+  document.getElementById("homeInterface").style.display = "block";
+
+  const firstName = profile.nom ? profile.nom.split(" ")[0] : "Étudiant";
+  document.getElementById("heroGreeting").innerHTML = `Salut, <span>${escapeHtml(firstName)}</span> 👋`;
+  document.getElementById("badgeName").textContent = firstName;
+  document.getElementById("heroSubtitle").textContent = `${escapeHtml(profile.filiere || 'Filière')} • ${escapeHtml(profile.niveau || 'Niveau')}`;
+
+  // Réinitialiser le menu
+  resetCenter(false);
+  openMenu();
+}
+
+function showOnboarding(user, profile = null) {
+  const modal = document.getElementById("onboardingModal");
+  modal.classList.add("active");
+
+  const nameInput = document.getElementById("profNom");
+  const univInput = document.getElementById("profUniversite");
+  const filiereSelect = document.getElementById("profFiliere");
+
+  // Pré-remplir si possible
+  const preName = (profile && profile.nom) || (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || "";
+  nameInput.value = preName;
+  univInput.value = (profile && profile.universite) || "";
+
+  if (profile && profile.niveau) {
+    selectLevel(profile.niveau);
+  } else {
+    selectLevel("L1");
+  }
+
+  if (profile && profile.filiere) {
+    filiereSelect.value = profile.filiere;
+    handleFiliereChange();
+  }
+}
+
+function hideOnboarding() {
+  document.getElementById("onboardingModal").classList.remove("active");
+}
+
+function selectLevel(lvl) {
+  document.getElementById("profNiveau").value = lvl;
+  document.querySelectorAll(".level-btn").forEach(btn => {
+    btn.classList.toggle("selected", btn.dataset.level === lvl);
+  });
+}
+
+function handleFiliereChange() {
+  const select = document.getElementById("profFiliere");
+  const customBox = document.getElementById("customFiliereBox");
+  const customInput = document.getElementById("profCustomFiliere");
+
+  if (select.value === "AUTRE") {
+    customBox.classList.add("active");
+    customInput.required = true;
+    customInput.focus();
+  } else {
+    customBox.classList.remove("active");
+    customInput.required = false;
+  }
+}
+
+async function saveProfile(e) {
+  e.preventDefault();
+  const feedback = document.getElementById("profileFeedback");
+  const btn = document.getElementById("btnSaveProfile");
+
+  feedback.className = "feedback-msg";
+  feedback.style.display = "none";
+  btn.disabled = true;
+  btn.textContent = "Enregistrement...";
+
+  const nom = document.getElementById("profNom").value.trim();
+  const universite = document.getElementById("profUniversite").value.trim();
+  const niveau = document.getElementById("profNiveau").value;
+  let filiere = document.getElementById("profFiliere").value;
+
+  if (filiere === "AUTRE") {
+    const custom = document.getElementById("profCustomFiliere").value.trim();
+    if (!custom) {
+      feedback.textContent = "Merci d'indiquer l'intitulé de ta filière.";
+      feedback.classList.add("error");
+      btn.disabled = false;
+      btn.textContent = "Valider et continuer";
+      return;
+    }
+    filiere = custom;
+
+    // Sauvegarder la nouvelle filière pour les suivants (sans validation bloquante)
+    if (supabase) {
+      try {
+        await supabase.from('filieres').insert({ nom: custom, pole: 'autre' });
+      } catch (err) {
+        console.warn("Filière déjà existante ou table non dispo:", err);
+      }
+    }
+  }
+
+  if (!currentUser) {
+    feedback.textContent = "Erreur de session. Veuillez vous reconnecter.";
+    feedback.classList.add("error");
+    btn.disabled = false;
+    btn.textContent = "Valider et continuer";
+    return;
+  }
+
+  const profileData = {
+    id: currentUser.id,
+    nom: nom,
+    universite: universite,
+    filiere: filiere,
+    niveau: niveau,
+    role: (currentProfile && currentProfile.role) || 'student',
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .upsert(profileData);
+
+    if (error) throw error;
+
+    currentProfile = profileData;
+    hideOnboarding();
+    showHomeView(currentProfile);
+
+    // Mettre à jour la liste des filières
+    loadFilieresFromDB();
+  } catch (err) {
+    console.error("Erreur enregistrement profil:", err);
+    feedback.textContent = "Impossible d'enregistrer le profil : " + (err.message || err);
+    feedback.classList.add("error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Valider et continuer";
+  }
+}
+
+/* ==========================================================================
+   AUTHENTIFICATION EMAIL / GOOGLE
+   ========================================================================== */
+let authMode = "login"; // "login" ou "register"
+
+document.getElementById("tabLogin").addEventListener("click", () => setAuthMode("login"));
+document.getElementById("tabRegister").addEventListener("click", () => setAuthMode("register"));
+
+function setAuthMode(mode) {
+  authMode = mode;
+  document.getElementById("tabLogin").classList.toggle("active", mode === "login");
+  document.getElementById("tabRegister").classList.toggle("active", mode === "register");
+  document.getElementById("btnSubmitAuth").textContent = mode === "login" ? "Se connecter" : "Créer mon compte";
+  const feedback = document.getElementById("authFeedback");
+  feedback.style.display = "none";
+}
+
+document.getElementById("btnGoogleAuth").addEventListener("click", async () => {
+  if (!supabase) return;
+  const feedback = document.getElementById("authFeedback");
+  feedback.style.display = "none";
+
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+    if (error) throw error;
+  } catch (err) {
+    feedback.textContent = "Connexion Google indisponible : active le provider Google dans Supabase.";
+    feedback.classList.add("error");
+  }
+});
+
+async function handleAuthSubmit(e) {
+  e.preventDefault();
+  if (!supabase) return;
+
+  const email = document.getElementById("authEmail").value.trim();
+  const password = document.getElementById("authPassword").value;
+  const feedback = document.getElementById("authFeedback");
+  const btn = document.getElementById("btnSubmitAuth");
+
+  feedback.className = "feedback-msg";
+  feedback.style.display = "none";
+  btn.disabled = true;
+
+  try {
+    if (authMode === "login") {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      // Session prise en charge par onAuthStateChange
+    } else {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
+      });
+      if (error) throw error;
+
+      if (data.user && !data.session) {
+        feedback.textContent = "Compte créé ! Vérifie tes emails pour confirmer ton inscription.";
+        feedback.classList.add("success");
+      }
+    }
+  } catch (err) {
+    feedback.textContent = err.message || "Erreur d'authentification";
+    feedback.classList.add("error");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function handleLogout() {
+  if (!supabase) return;
+  await supabase.auth.signOut();
+  currentUser = null;
+  currentProfile = null;
+  closePage();
+  showAuthView();
+}
+
+/* ==========================================================================
+   MENU CIRCULAIRE ET GESTES (POINTER EVENTS)
+   ========================================================================== */
 const menu = document.getElementById("menu");
 const center = document.getElementById("center");
 const hint = document.getElementById("hint");
-
-const destination = document.getElementById("destination");
-const pageTitle = document.getElementById("pageTitle");
-const pageDescription = document.getElementById("pageDescription");
-
 const satellites = document.querySelectorAll(".satellite");
 
-let isOpen = false;
+let isOpen = true;
 let isDragging = false;
 let moved = false;
-
-let startX = 0;
-let startY = 0;
-
-let initialX = 0;
-let initialY = 0;
-
-const pages = {
-  Recherche: "Recherche des documents par matière ou niveau.",
-  Documents: "Consulte les documents disponibles sur SIA.",
-  Téléchargements: "Retrouve les documents que tu as achetés.",
-  Publier: "Publie tes documents pour les proposer à la vente.",
-  Profil: "Gère ton compte et tes publications."
-};
+let startX = 0, startY = 0;
+let initialX = 0, initialY = 0;
+let activeSatellite = null;
 
 function openMenu() {
   isOpen = true;
   menu.classList.add("open");
   center.setAttribute("aria-expanded", "true");
-
-  hint.textContent =
-    "Fais glisser le bouton central vers un satellite.";
+  hint.textContent = "Fais glisser le bouton central vers un satellite.";
 }
 
 function closeMenu() {
   isOpen = false;
   menu.classList.remove("open");
   center.setAttribute("aria-expanded", "false");
-
-  hint.textContent =
-    "Touche le bouton central pour afficher les satellites.";
+  hint.textContent = "Touche le bouton central pour afficher les satellites.";
 }
 
 function toggleMenu() {
-  if (isOpen) {
-    closeMenu();
-  } else {
-    openMenu();
-  }
+  if (isOpen) closeMenu();
+  else openMenu();
 }
 
 function resetCenter(animated = true) {
+  clearSatelliteTargets();
   if (animated) {
     center.classList.add("returning");
     center.style.left = "50%";
     center.style.top = "50%";
     center.style.transform = "translate(-50%, -50%)";
-    setTimeout(function() {
+    setTimeout(() => {
       center.classList.remove("returning");
       center.style.left = "";
       center.style.top = "";
@@ -449,14 +1350,15 @@ function resetCenter(animated = true) {
   }
 }
 
-center.addEventListener("pointerdown", function(e) {
+function clearSatelliteTargets() {
+  satellites.forEach(s => s.classList.remove("targeted"));
+  activeSatellite = null;
+}
 
-  if (destination.classList.contains("active")) {
-    return;
-  }
+center.addEventListener("pointerdown", function(e) {
+  if (document.getElementById("destination").classList.contains("active")) return;
 
   e.preventDefault();
-
   isDragging = true;
   moved = false;
 
@@ -472,52 +1374,42 @@ center.addEventListener("pointerdown", function(e) {
   center.classList.remove("returning");
   center.setPointerCapture(e.pointerId);
 
-  if (!isOpen) {
-    openMenu();
-  }
+  if (!isOpen) openMenu();
 });
 
 center.addEventListener("pointermove", function(e) {
-
   if (!isDragging) return;
 
   const dx = e.clientX - startX;
   const dy = e.clientY - startY;
 
-  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+  if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
     moved = true;
   }
 
   if (!moved) return;
 
   const menuRect = menu.getBoundingClientRect();
-
   const size = center.offsetWidth;
   const height = center.offsetHeight;
 
   let x = initialX + dx;
   let y = initialY + dy;
 
-  x = Math.max(
-    0,
-    Math.min(menuRect.width - size, x)
-  );
-
-  y = Math.max(
-    0,
-    Math.min(menuRect.height - height, y)
-  );
+  // Limites du menu
+  x = Math.max(0, Math.min(menuRect.width - size, x));
+  y = Math.max(0, Math.min(menuRect.height - height, y));
 
   center.style.left = x + "px";
   center.style.top = y + "px";
-
   center.style.transform = "none";
+
+  // Détection du satellite visé en temps réel
+  detectTargetedSatellite();
 });
 
 center.addEventListener("pointerup", function(e) {
-
   if (!isDragging) return;
-
   isDragging = false;
 
   try {
@@ -525,7 +1417,14 @@ center.addEventListener("pointerup", function(e) {
   } catch (err) {}
 
   if (moved) {
-    selectSatellite();
+    if (activeSatellite) {
+      const page = activeSatellite.dataset.page;
+      clearSatelliteTargets();
+      resetCenter(false);
+      openPage(page);
+    } else {
+      resetCenter(true);
+    }
   } else {
     resetCenter(false);
   }
@@ -533,136 +1432,177 @@ center.addEventListener("pointerup", function(e) {
 
 center.addEventListener("pointercancel", function(e) {
   isDragging = false;
-  try {
-    center.releasePointerCapture(e.pointerId);
-  } catch (err) {}
+  try { center.releasePointerCapture(e.pointerId); } catch (err) {}
   resetCenter(true);
 });
 
-function selectSatellite() {
+center.addEventListener("click", function() {
+  if (moved) return;
+  toggleMenu();
+  resetCenter(false);
+});
 
+// Détecte quel satellite est visé pendant le glissement
+function detectTargetedSatellite() {
   const centerRect = center.getBoundingClientRect();
+  const cX = centerRect.left + centerRect.width / 2;
+  const cY = centerRect.top + centerRect.height / 2;
 
-  let selected = null;
-  let closestDistance = Infinity;
+  let closest = null;
+  let minDistance = 75; // Seuil d'activation (en px)
 
-  satellites.forEach(function(satellite) {
+  satellites.forEach(satellite => {
+    const sRect = satellite.getBoundingClientRect();
+    const sX = sRect.left + sRect.width / 2;
+    const sY = sRect.top + sRect.height / 2;
+    const dist = Math.hypot(cX - sX, cY - sY);
 
-    const satelliteRect = satellite.getBoundingClientRect();
-
-    const overlapX =
-      Math.min(centerRect.right, satelliteRect.right) -
-      Math.max(centerRect.left, satelliteRect.left);
-
-    const overlapY =
-      Math.min(centerRect.bottom, satelliteRect.bottom) -
-      Math.max(centerRect.top, satelliteRect.top);
-
-    if (overlapX > 0 && overlapY > 0) {
-
-      const centerX =
-        satelliteRect.left + satelliteRect.width / 2;
-
-      const centerY =
-        satelliteRect.top + satelliteRect.height / 2;
-
-      const distance = Math.hypot(
-        centerRect.left + centerRect.width / 2 - centerX,
-        centerRect.top + centerRect.height / 2 - centerY
-      );
-
-      if (distance < closestDistance) {
-        selected = satellite;
-        closestDistance = distance;
-      }
+    if (dist < minDistance) {
+      closest = satellite;
+      minDistance = dist;
     }
   });
 
-  if (selected) {
-    openPage(selected.dataset.page);
-    resetCenter(false);
-  } else {
-    resetCenter(true);
+  if (closest !== activeSatellite) {
+    satellites.forEach(s => s.classList.remove("targeted"));
+    if (closest) {
+      closest.classList.add("targeted");
+      if (navigator.vibrate) navigator.vibrate(15);
+    }
+    activeSatellite = closest;
   }
 }
 
-center.addEventListener("click", function() {
-
-  if (moved) return;
-
-  toggleMenu();
-  resetCenter(false);
-
-});
-
-center.addEventListener("keydown", function (e) {
-  if (e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    toggleMenu();
-  }
-});
-
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" && isOpen) {
-    closeMenu();
-    center.focus();
-  }
-});
-
-satellites.forEach(function(satellite) {
-
+// Clic direct sur satellite
+satellites.forEach(satellite => {
   satellite.addEventListener("click", function(e) {
-
     e.stopPropagation();
-
     openPage(this.dataset.page);
-
   });
-
 });
 
+/* ==========================================================================
+   NAVIGATION PAGES & CONTENU
+   ========================================================================== */
 function openPage(page) {
+  const destination = document.getElementById("destination");
+  const pageTitle = document.getElementById("pageTitle");
+  const pageContent = document.getElementById("pageContent");
 
-  pageTitle.textContent = page;
-
-  pageDescription.textContent = pages[page];
-
+  document.getElementById("homeInterface").style.display = "none";
   destination.classList.add("active");
 
-  menu.style.display = "none";
-  hint.style.display = "none";
+  const icons = {
+    Profil: "👤", Cours: "📚", TD: "📝", Notes: "🗒️", Caméra: "📷", Audio: "🎙️"
+  };
 
-  pageTitle.setAttribute("tabindex", "-1");
-  pageTitle.focus();
+  pageTitle.innerHTML = `<span>${icons[page] || '✦'}</span> ${page}`;
+
+  if (page === "Profil") {
+    renderProfilePage(pageContent);
+  } else {
+    renderPlaceholderPage(page, pageContent);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closePage() {
-
+  const destination = document.getElementById("destination");
   destination.classList.remove("active");
 
-  menu.style.display = "";
-  hint.style.display = "";
-
-  resetCenter(false);
-  openMenu();
-  center.focus();
+  if (currentUser) {
+    document.getElementById("homeInterface").style.display = "block";
+    resetCenter(false);
+    openMenu();
+  } else {
+    showAuthView();
+  }
 }
 
-function normalize(text) {
-  return text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+function renderProfilePage(container) {
+  if (!currentProfile) {
+    container.innerHTML = `<p class="desc">Profil non disponible.</p>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="profile-card">
+      <div class="profile-field">
+        <span class="label">Nom complet</span>
+        <span class="value">${escapeHtml(currentProfile.nom || 'Non défini')}</span>
+      </div>
+      <div class="profile-field">
+        <span class="label">Établissement</span>
+        <span class="value">${escapeHtml(currentProfile.universite || 'Non défini')}</span>
+      </div>
+      <div class="profile-field">
+        <span class="label">Filière</span>
+        <span class="value" style="color: var(--primary);">${escapeHtml(currentProfile.filiere || 'Non défini')}</span>
+      </div>
+      <div class="profile-field">
+        <span class="label">Niveau d'études</span>
+        <span class="value">${escapeHtml(currentProfile.niveau || 'Non défini')}</span>
+      </div>
+      <div class="profile-field">
+        <span class="label">Statut</span>
+        <span class="value">${currentProfile.role === 'admin' ? '🛡️ Administrateur' : '🎓 Étudiant'}</span>
+      </div>
+      <div class="profile-field">
+        <span class="label">Email de session</span>
+        <span class="value" style="font-size: 12px; font-weight: normal;">${escapeHtml(currentUser.email || '')}</span>
+      </div>
+    </div>
+
+    <button class="btn-secondary" onclick="showOnboarding(currentUser, currentProfile)">
+      ✏️ Modifier mes informations
+    </button>
+
+    <button class="btn-logout" onclick="handleLogout()">
+      🚪 Se déconnecter
+    </button>
+  `;
 }
 
-function debounce(fn, delay = 200) {
-  let timer;
-  return function (...args) {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), delay);
+function renderPlaceholderPage(page, container) {
+  const phaseInfo = {
+    Cours: { phase: "Phase 2", desc: "Stockage et consultation de vos PDF de cours par matière, réservés aux étudiants de votre filière et niveau." },
+    TD: { phase: "Phase 2", desc: "Téléversement et consultation des fascicules et fiches d'exercices de travaux dirigés." },
+    Notes: { phase: "Phase 2", desc: "Éditeur riche pour prendre vos notes de cours privées par matière." },
+    Caméra: { phase: "Phase 3", desc: "Prise de photos instantanées du projecteur en amphi avec préparation de synthèse IA." },
+    Audio: { phase: "Phase 3", desc: "Enregistreur dictaphone pour enregistrer les explications des professeurs." }
   };
+
+  const info = phaseInfo[page] || { phase: "Bientôt", desc: "Module en cours de développement." };
+
+  container.innerHTML = `
+    <div style="padding: 20px 0; text-align: center;">
+      <div style="display: inline-block; padding: 4px 12px; background: var(--input-bg); color: var(--primary); border-radius: 20px; font-size: 12px; font-weight: 700; margin-bottom: 14px;">
+        Prévu en ${info.phase}
+      </div>
+      <p style="font-size: 15px; line-height: 1.5; color: var(--muted); margin-bottom: 24px;">
+        ${info.desc}
+      </p>
+      <div style="background: var(--input-bg); padding: 18px; border-radius: var(--radius-md); font-size: 13px; color: var(--text);">
+        📚 Filière active : <strong>${escapeHtml(currentProfile ? currentProfile.filiere : 'Toutes')}</strong> (${escapeHtml(currentProfile ? currentProfile.niveau : '')})
+      </div>
+    </div>
+  `;
 }
 
+function escapeHtml(str) {
+  if (!str) return "";
+  return str.replace(/[&<>'"]/g, tag => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[tag] || tag));
+}
+
+// Lancement au chargement du DOM
+document.addEventListener("DOMContentLoaded", initApp);
 </script>
 
 </body>
